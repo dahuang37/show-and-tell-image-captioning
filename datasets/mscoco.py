@@ -7,9 +7,10 @@ from torchvision import transforms
 from PIL import Image
 from pycocotools.coco import COCO
 import nltk
-from build_vocab import Vocabulary
+from .build_vocab import Vocabulary
 import pickle
 import json
+import argparse
 
 
 class CocoDataset(Dataset):
@@ -26,14 +27,15 @@ class CocoDataset(Dataset):
 			vocab:
 			transform:
 		"""
+		print(os.getcwd())
 		self.root = root
 		self.annFile = annFile
 		self.vocab = vocab
 		self.transform = transform
 		self.coco = COCO(annFile)
 		self.ids = list(self.coco.anns.keys())
-		print(len(list(self.coco.anns.keys())))
-		print("images",len(list(self.coco.imgs.keys())))
+		# print(len(list(self.coco.anns.keys())))
+		# print("images",len(list(self.coco.imgs.keys())))
 
 	def __getitem__(self, index):
 		"""
@@ -58,14 +60,23 @@ class CocoDataset(Dataset):
 		target = torch.Tensor(caption)
 		return image, target
 		
-
 	def __len__(self):
 		return len(self.ids)
 
 def collate_fn(data):
+	"""
+	Pad the captions to have equal (maxiimal) length
+
+	Returns:
+		images: shape (batch_size, 3, 224, 224)
+		captions: shape (batch_size, padded_length)
+		lengths: valid lengths for each padded captions shape (batch_size, )
+	"""
+
 	images, captions = zip(*data)
-	lengths = [len(cap) for cap in captions]
 	
+	lengths = [len(cap) for cap in captions]
+	# important to initilize as zero <pad>
 	targets = torch.zeros(len(captions), max(lengths)).long()
 	for i, cap in enumerate(captions):
 		end = lengths[i]
@@ -87,6 +98,9 @@ def generate_test_entries(valid_annFile, root="./data/coco/annotations",
 	coco = COCO(valid_annFile)
 	
 	num_of_imgs = len(test_file["images"])
+
+	print("Original: %d val images, %d val annotations"%(num_of_imgs, len(test_file["annotations"])))
+
 	test_dict = {'images':[], 'annotations':[], 'info': test_file["info"], 'licenses': test_file["licenses"]}
 	valid_dict = {'images':[], 'annotations':[], 'info': test_file["info"], 'licenses': test_file["licenses"]}
 	test_ids_idx = np.random.choice(num_of_imgs, 4000, replace=False)
@@ -113,7 +127,7 @@ def generate_test_entries(valid_annFile, root="./data/coco/annotations",
 	with open(os.path.join(root, new_valid_filename), "w") as f:
 		json.dump(valid_dict, f)
 
-	print("Saving %d test images (should be 4000) %d test annotations" % (len(test_dict["images"], len(test_dict["annotations"]))))
+	print("Saving %d test images (should be 4000) %d test annotations" % (len(test_dict["images"]), len(test_dict["annotations"])))
 	with open(os.path.join(root, new_test_filename), "w") as f:
 		json.dump(test_dict, f)
 
@@ -137,15 +151,12 @@ def get_data_loader(root, annFile, vocab, transform, batch_size=4, shuffle=True,
 					  vocab = vocab,
 					  transform=transform)
 	data_loader = torch.utils.data.DataLoader(dataset=dataset, 
-										   batch_size=4,
-										   shuffle=True,
-										   num_workers=0,
+										   batch_size=batch_size,
+										   shuffle=shuffle,
+										   num_workers=num_workers,
 										   collate_fn=collate_fn,
 										   )
-
-print(len(train_set))
-images, target = train_set[0]
-print(target)
+	return data_loader
 
 
 def main(args):
