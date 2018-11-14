@@ -118,23 +118,7 @@ class Early_stopping(object):
     def stop(self):
         return self.stopping
 
-class LossTracker(object):
-    '''
-    tracks and loss and plots it 
-    '''
-    def __init__(self):
-        self.loss = []
 
-    def append(self, cur_loss):
-        self.loss.append(cur_loss)
-
-    def output_plot(self):
-        pass
-
-    def load_loss(self, filename):
-        with open(filename, "r") as f:
-            self.loss = json.load(f)
-
-    def save_loss(self, filename):
-        with open(filename, 'w') as f:
-            json.dump(self.loss, f)
+def ensure_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)

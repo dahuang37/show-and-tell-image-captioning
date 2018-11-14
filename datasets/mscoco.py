@@ -132,24 +132,35 @@ def generate_test_entries(valid_annFile, root="./data/coco/annotations",
 		json.dump(test_dict, f)
 
 
-def get_data_loader(root, annFile, vocab, transform, batch_size=4, shuffle=True, num_workers=0):
+def get_data_loader(mode, transform, batch_size=4, shuffle=True, num_workers=0):
 	""" 
 	Returns Data loader for custom coco dataset
 
 	Params:
-		root:    	./data/coco/[train2014 | val2014]
-		annFile: 	./data/coco/annotations[captions_train2014.json | captions_val2014_reserved.json 
-										| captions_test2014_reserved.json]
-		vocab:   	loaded file from ./data/coco/vocab.pkl
+		# root:    	./data/coco/[train2014 | val2014]
+		# annFile: 	./data/coco/annotations[captions_train2014.json | captions_val2014_reserved.json 
+		# 								| captions_test2014_reserved.json]
+		mode:		[train | val | test]
+		# vocab:   	loaded file from ./data/coco/vocab.pkl
 		transform: 	pytorch transformer
 		batch_size: num of images in a batch [default:4]
 		shuffle:	shuffle or not [default: true]
 		num_workers:thread used for dataloader [default:0]
 	"""
+	assert(mode in ["train", "val", "test"])
+
+	root = "./data/coco/train2014" if mode == "train" else "./data/coco/val2014"
+
+	annFile = "./data/coco/annotations/captions_train2014.json" if mode == "train" else "./data/coco/annotations/captions_" + mode + "2014_reserved.json"
+
+	with open("./data/coco/vocab.pkl", 'rb') as f:
+		vocab = pickle.load(f)
+
 	dataset = CocoDataset(root=root,
 					  annFile=annFile,
 					  vocab = vocab,
 					  transform=transform)
+
 	data_loader = torch.utils.data.DataLoader(dataset=dataset, 
 										   batch_size=batch_size,
 										   shuffle=shuffle,
@@ -161,6 +172,7 @@ def get_data_loader(root, annFile, vocab, transform, batch_size=4, shuffle=True,
 
 def main(args):
 	# generate test images
+	print("Createing annotations json for splited val and test")
 	generate_test_entries(args.json)
 
 

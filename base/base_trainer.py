@@ -2,7 +2,7 @@ import os
 import math
 import shutil
 import torch
-from utils.util import ensure_dir
+from utils import ensure_dir
 
 
 class BaseTrainer:
@@ -15,6 +15,7 @@ class BaseTrainer:
                  save_dir, save_freq, resume, verbosity, identifier='', logger=None):
         self.model = model
         self.loss = loss
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.metrics = metrics
         self.optimizer = optimizer
         self.epochs = epochs
@@ -50,6 +51,9 @@ class BaseTrainer:
                 self._save_checkpoint(epoch, result['loss'])
 
     def _train_epoch(self, epoch):
+        raise NotImplementedError
+
+    def _valid_epoch(self):
         raise NotImplementedError
 
     def _save_checkpoint(self, epoch, loss):
