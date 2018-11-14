@@ -1,0 +1,4 @@
+# ignore data
+data/*
+*.pyc
+__pycache__/*
