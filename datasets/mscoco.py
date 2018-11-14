@@ -31,7 +31,6 @@ class CocoDataset(Dataset):
 		self.vocab = vocab
 		self.transform = transform
 		self.coco = COCO(annFile)
-		print(self.coco)
 		self.ids = list(self.coco.anns.keys())
 		print(len(list(self.coco.anns.keys())))
 		print("images",len(list(self.coco.imgs.keys())))
@@ -75,55 +74,88 @@ def collate_fn(data):
 	return images, targets, lengths
 
 
-root = "./data/coco"
-# train_root = os.path.join(root,"train2014")
-# valid_root = os.path.join(root,"val2014")
-# train_annFile = os.path.join(root, "annotations/captions_train2014.json")
-valid_annFile = os.path.join(root, "annotations/captions_val2014.json")
-with open(valid_annFile,"r") as f:
-	test_file = json.load(f)
-	print(test_file.keys())
-	print(test_file["images"][0])
-	print(test_file["annotations"][0])
-	num_of_imgs = len(test_file["images"])
-	test_dict = {'images':{}, 'annotations':{}}
-	valid_dict = {'images':{}, 'annotations':{}}
-	test_ids = np.random.choices(num_of_imgs, 4000)
-	for i in rang
 
-	# print(test_file["annotations"])
-# 	coco = COCO(valid_annFile)
-# 	print(list(coco.imgs.keys()))
+def generate_test_entries(valid_annFile, root="./data/coco/annotations", 
+										new_valid_filename="captions_val2014_reserved.json",
+										new_test_filename="captions_test2014_reserved.json"):
+	"""
+	reserves 4k images from validation as test
+	"""
+	with open(valid_annFile, "r") as f:
+		test_file = json.load(f)
 
-def save_test_imgs(valid_annFile):
 	coco = COCO(valid_annFile)
-	num_of_imgs = len(coco.imgs.keys())
-	print("Number of images: {}".format(num_of_imgs))
-	# saving 4000 as test images
+	
+	num_of_imgs = len(test_file["images"])
+	test_dict = {'images':[], 'annotations':[], 'info': test_file["info"], 'licenses': test_file["licenses"]}
+	valid_dict = {'images':[], 'annotations':[], 'info': test_file["info"], 'licenses': test_file["licenses"]}
+	test_ids_idx = np.random.choice(num_of_imgs, 4000, replace=False)
+	test_ids = np.array(list(coco.imgs.keys()))[test_ids_idx]
+	
+	# store the images entries
+	for i, image_info in enumerate(test_file["images"]):
+		id = image_info["id"]
+		if id in test_ids:
+			# test_ids.append(id)
+			test_dict["images"].append(image_info)
+		else:
+			valid_dict["images"].append(image_info)
+
+	# store the annotations entries
+	for i, annotations in enumerate(test_file["annotations"]):
+		id = annotations["image_id"]
+		if id in test_ids:
+			test_dict["annotations"].append(annotations)
+		else:
+			valid_dict["annotations"].append(annotations)
+	
+	print("Saving %d val images, %d val annotations" % (len(valid_dict["images"]), len(valid_dict["annotations"])))
+	with open(os.path.join(root, new_valid_filename), "w") as f:
+		json.dump(valid_dict, f)
+
+	print("Saving %d test images (should be 4000) %d test annotations" % (len(test_dict["images"], len(test_dict["annotations"]))))
+	with open(os.path.join(root, new_test_filename), "w") as f:
+		json.dump(test_dict, f)
 
 
+def get_data_loader(root, annFile, vocab, transform, batch_size=4, shuffle=True, num_workers=0):
+	""" 
+	Returns Data loader for custom coco dataset
 
-save_test_imgs(valid_annFile)
+	Params:
+		root:    	./data/coco/[train2014 | val2014]
+		annFile: 	./data/coco/annotations[captions_train2014.json | captions_val2014_reserved.json 
+										| captions_test2014_reserved.json]
+		vocab:   	loaded file from ./data/coco/vocab.pkl
+		transform: 	pytorch transformer
+		batch_size: num of images in a batch [default:4]
+		shuffle:	shuffle or not [default: true]
+		num_workers:thread used for dataloader [default:0]
+	"""
+	dataset = CocoDataset(root=root,
+					  annFile=annFile,
+					  vocab = vocab,
+					  transform=transform)
+	data_loader = torch.utils.data.DataLoader(dataset=dataset, 
+										   batch_size=4,
+										   shuffle=True,
+										   num_workers=0,
+										   collate_fn=collate_fn,
+										   )
 
-# print(os.listdir())
+print(len(train_set))
+images, target = train_set[0]
+print(target)
 
-# with open("./data/coco/vocab.pkl", "rb") as f:
-# 	vocab = pickle.load(f)
+
+def main(args):
+	# generate test images
+	generate_test_entries(args.json)
 
 
-def get_data_loader(msg):#root, json, vocab, transform, batch_size, shuffle, num_workers
-	pass
-# train_set = CocoDataset(root=test_root,
-# 					  annFile=test_annFile,
-# 					  vocab = vocab,
-# 					  transform=transforms.ToTensor())
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--json', type=str, default="./data/coco/annotations/captions_val2014.json", help="path for val annoations")
+	args = parser.parse_args()
+	main(args)
 
-# print(len(train_set))
-# images, target = train_set[0]
-# print(target)
-# data_loader = torch.utils.data.DataLoader(dataset=train_set, 
-# 										   batch_size=4,
-# 										   shuffle=True,
-# 										   num_workers=0,
-# 										   collate_fn=collate_fn,
-# 										   )
