@@ -12,11 +12,11 @@ chmod +x ./set_up.sh
 
 # TODO
 ### Datasets / Dataloader
-- [] Flickr30k / Flickr8k
-- [] SBU
-- [] PASCAL
+- [ ] Flickr30k / Flickr8k
+- [ ] SBU
+- [ ] PASCAL
 ### Training
-- [] Write model for training
-- [] Supervised training process
+- [ ] Write model for training
+- [ ] Supervised training process
 ### Evaluation
-- [] Investigate in evaluation metrics (BLEU, METER, Cider), using MSCOCO api
+- [ ] Investigate in evaluation metrics (BLEU, METER, Cider), using MSCOCO api

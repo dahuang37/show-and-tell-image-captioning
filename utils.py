@@ -35,7 +35,7 @@ def progress_bar(current, total, msg=None):
     tot_time = cur_time - begin_time
     # running avg step size
     
-    est_time = (step_time * total) - tot_time 
+    est_time = max((tot_time/i),step_time)*total 
 
     L = []
     L.append('  Step: %s' % format_time(step_time))
