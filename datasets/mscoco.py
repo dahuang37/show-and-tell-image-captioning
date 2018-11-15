@@ -72,9 +72,10 @@ def collate_fn(data):
 		captions: shape (batch_size, padded_length)
 		lengths: valid lengths for each padded captions shape (batch_size, )
 	"""
+	data.sort(key=lambda x: len(x[1]), reverse=True)
 
 	images, captions = zip(*data)
-	
+	images = torch.stack(images, 0)
 	lengths = [len(cap) for cap in captions]
 	# important to initilize as zero <pad>
 	targets = torch.zeros(len(captions), max(lengths)).long()
@@ -132,7 +133,12 @@ def generate_test_entries(valid_annFile, root="./data/coco/annotations",
 		json.dump(test_dict, f)
 
 
-def get_data_loader(mode, transform, batch_size=4, shuffle=True, num_workers=0):
+def get_vocab():
+	with open("./data/coco/vocab.pkl", 'rb') as f:
+		vocab = pickle.load(f)
+	return vocab
+
+def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_workers=0):
 	""" 
 	Returns Data loader for custom coco dataset
 
@@ -141,7 +147,7 @@ def get_data_loader(mode, transform, batch_size=4, shuffle=True, num_workers=0):
 		# annFile: 	./data/coco/annotations[captions_train2014.json | captions_val2014_reserved.json 
 		# 								| captions_test2014_reserved.json]
 		mode:		[train | val | test]
-		# vocab:   	loaded file from ./data/coco/vocab.pkl
+		vocab:   	loaded file from ./data/coco/vocab.pkl
 		transform: 	pytorch transformer
 		batch_size: num of images in a batch [default:4]
 		shuffle:	shuffle or not [default: true]
@@ -153,12 +159,9 @@ def get_data_loader(mode, transform, batch_size=4, shuffle=True, num_workers=0):
 
 	annFile = "./data/coco/annotations/captions_train2014.json" if mode == "train" else "./data/coco/annotations/captions_" + mode + "2014_reserved.json"
 
-	with open("./data/coco/vocab.pkl", 'rb') as f:
-		vocab = pickle.load(f)
-
 	dataset = CocoDataset(root=root,
 					  annFile=annFile,
-					  vocab = vocab,
+					  vocab=vocab,
 					  transform=transform)
 
 	data_loader = torch.utils.data.DataLoader(dataset=dataset, 
