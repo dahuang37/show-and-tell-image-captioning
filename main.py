@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from model.model import Encoder, Decoder
+from model.model import Encoder, Decoder, BaselineModel
 # from model.metric import my_metric, my_metric2
 from datasets import Vocabulary
 import datasets.dataloader as dataloader
@@ -35,6 +35,8 @@ parser.add_argument('--embed_size', default=256, type=int,
                     help='dimension for word embedding vector')
 parser.add_argument('--hidden_size', default=512, type=int,
                     help='dimension for lstm hidden layer')
+parser.add_argument('--cnn_model', default="resnet18", type=str,
+                    help='pretrained cnn model used')
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -71,26 +73,22 @@ def main(args):
                                                                          num_workers=0)
 
     # Model
-    encoder = Encoder(args.embed_size, cnn_model="resnet18").to(device)
-    decoder = Decoder(args.embed_size, args.hidden_size, len(vocab), num_layers=1).to(device)
-    encoder.summary()
-    decoder.summary()
-
+    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=1, cnn_model=args.cnn_model).to(device)
+    
+    model.summary()
     # A logger to store training process information
     logger = Logger()
 
     # Specifying loss function, metric(s), and optimizer
     loss = nn.CrossEntropyLoss()
-    # metrics = [my_metric, my_metric2]
-    params = list(decoder.parameters()) + list(encoder.parameters())
-    optimizer = optim.Adam(params, lr=args.learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 
     
     # An identifier (prefix) for saved model
-    # identifier = type(model).__name__ + '_'
+    identifier = type(model).__name__ + '_'
 
     # Trainer instance
-    trainer = Trainer(encoder, decoder, loss, None,
+    trainer = Trainer(model, loss, metrics=None,
                       data_loader=data_loader,
                       valid_data_loader=valid_data_loader,
                       optimizer=optimizer,
@@ -100,7 +98,7 @@ def main(args):
                       save_freq=args.save_freq,
                       resume=args.resume,
                       verbosity=args.verbosity,
-                      # identifier=identifier,
+                      identifier=identifier,
                       )
 
     # # Start training!

@@ -27,15 +27,12 @@ class CocoDataset(Dataset):
 			vocab:
 			transform:
 		"""
-		print(os.getcwd())
 		self.root = root
 		self.annFile = annFile
 		self.vocab = vocab
 		self.transform = transform
 		self.coco = COCO(annFile)
 		self.ids = list(self.coco.anns.keys())
-		# print(len(list(self.coco.anns.keys())))
-		# print("images",len(list(self.coco.imgs.keys())))
 
 	def __getitem__(self, index):
 		"""
