@@ -23,6 +23,8 @@ chmod +x ./set_up.sh
 ### Evaluation
 - [ ] Investigate in evaluation metrics (BLEU, METER, Cider), using MSCOCO api
 
+
+## Basic Usage
 ```
 usage: main.py [-h] [-b BATCH_SIZE] [-e EPOCHS] [--resume RESUME]
                [--verbosity VERBOSITY] [--save-dir SAVE_DIR]
