@@ -3,6 +3,7 @@ import torch
 from base.base_trainer import BaseTrainer
 from torch.nn.utils.rnn import pack_padded_sequence
 from utils import *
+import time
 
 
 class Trainer(BaseTrainer):
@@ -12,10 +13,10 @@ class Trainer(BaseTrainer):
         Inherited from BaseTrainer.
         Modify __init__() if you have additional arguments to pass.
     """
-    def __init__(self, encoder, decoder, loss, metrics, data_loader, optimizer, epochs,
+    def __init__(self, model, loss, metrics, data_loader, optimizer, epochs,
                  save_dir, save_freq, resume, verbosity, identifier='',
                  valid_data_loader=None, logger=None):
-        super(Trainer, self).__init__(encoder, decoder, loss, metrics, optimizer, epochs,
+        super(Trainer, self).__init__(model, loss, metrics, optimizer, epochs,
                                       save_dir, save_freq, resume, verbosity, identifier, logger)
         self.batch_size = data_loader.batch_size
         self.data_loader = data_loader
@@ -37,43 +38,33 @@ class Trainer(BaseTrainer):
                 > return log
         """
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        encoder = self.encoder
-        decoder = self.decoder
-        encoder.train()
-        decoder.train()
+        model = self.model
+        model.train()
 
+        start_time = time.time()
         total_loss = 0
-        # total_metrics = np.zeros(len(self.metrics))
-        for batch_idx, (data, captions, lengths) in enumerate(self.data_loader):
+        for batch_idx, (images, captions, lengths) in enumerate(self.data_loader):
             
-            data, captions = data.to(device), captions.to(device)
-
+            images, captions = images.to(device), captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
-
+            
             self.optimizer.zero_grad()
-            features = encoder(data)
-            output = decoder(features, captions, lengths)
+            output = model(images, captions, lengths)
             loss = self.loss(output, targets)
             loss.backward()
             self.optimizer.step()
+            
+            total_loss += loss.item()
 
-            # for i, metric in enumerate(self.metrics):
-            #     y_output = output.data.cpu().numpy()
-            #     y_output = np.argmax(y_output, axis=1)
-            #     y_target = target.data.cpu().numpy()
-            #     total_metrics[i] += metric(y_output, y_target)
-
-            total_loss += loss.data[0]
+            # logging info
             log_step = int(np.sqrt(self.batch_size))
             if self.verbosity >= 2 and batch_idx % log_step == 0:
-                progress_bar(batch_idx, len(self.data_loader), "Loss:{:.6f}".format(loss.data[0]))
-                # print('Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f}'.format(
-                #     epoch, batch_idx * len(data), len(self.data_loader) * len(data),
-                #     100.0 * batch_idx / len(self.data_loader), loss.data[0]))
+                print('Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f}, time: {}'.format(
+                    epoch, batch_idx * len(images), len(self.data_loader) * len(images),
+                    100.0 * batch_idx / len(self.data_loader), loss.item(), format_time(time.time()-start_time)))
 
         avg_loss = total_loss / len(self.data_loader)
-        avg_metrics = None #(total_metrics / len(self.data_loader)).tolist()
-        log = {'loss': avg_loss, 'metrics': avg_metrics}
+        log = {'loss': avg_loss}
 
         if self.valid:
             val_log = self._valid_epoch()
@@ -90,28 +81,22 @@ class Trainer(BaseTrainer):
             Modify this part if you need to.
         """
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        encoder = self.encoder
-        decoder = self.decoder
-        encoder.eval()
-        decoder.eval()
+        model = self.model
+        model.eval()
+        
         total_val_loss = 0
         # total_val_metrics = np.zeros(len(self.metrics))
         with torch.no_grad():
-            for batch_idx, (data, captions, lengths) in enumerate(self.valid_data_loader):
+            for batch_idx, (images, captions, lengths) in enumerate(self.valid_data_loader):
 
-                data, target = data.to(device), captions.to(device)
+                images, captions = images.to(device), captions.to(device)
 
-                features = encoder(data)
-                output = decoder(features, captions, lengths)
+                output = model(images, captions, lengths)
+                targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
                 loss = self.loss(output, targets)
-                total_val_loss += loss.data[0]
+                total_val_loss += loss.item()
+                progress_bar(batch_idx, len(self.valid_data_loader))
 
-                # for i, metric in enumerate(self.metrics):
-                #     y_output = output.data.cpu().numpy()
-                #     y_output = np.argmax(y_output, axis=1)
-                #     y_target = target.data.cpu().numpy()
-                #     total_val_metrics[i] += metric(y_output, y_target)
-
+                
         avg_val_loss = total_val_loss / len(self.valid_data_loader)
-        avg_val_metrics = None #(total_val_metrics / len(self.valid_data_loader)).tolist()
-        return {'val_loss': avg_val_loss, 'val_metrics': avg_val_metrics}
+        return {'val_loss': avg_val_loss}
