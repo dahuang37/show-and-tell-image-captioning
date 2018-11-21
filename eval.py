@@ -63,7 +63,7 @@ def eval(data_loader, model, dictionary, loss_f, optimizer):
     for batch_id, (images, captions, lengths, img_id) in enumerate(data_loader):
         images, captions = images.to(device), captions.to(device)
         targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
-        optimizer.zero_grad()
+        
         output = model(images, captions, lengths)
         loss = loss_f(output, targets)
         total_loss += loss
