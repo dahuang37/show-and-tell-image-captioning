@@ -11,10 +11,44 @@ import string
 import os
 from torch.autograd import Variable
 import sys
+from pycocotools.coco import COCO
+from pycocoevalcap.eval import COCOEvalCap
 
 def coco_metric(input_sentence):
+    sys.path.append("coco-caption")
+    path_anna = "data/coco/annotations/captions_val2014.json"
+    encoder.FLOAT_REPR = lambda o: format(o, '.3f')
+    random.seed(time.time())
+    tmp_file = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-    return
+    coco_set = COCO(path_anna)
+    imgid_set = coco_set.getImgIds()
+
+    pred_set = [prediction for prediction in input_sentence if prediction['image_id'] in imgid_set]
+    print('using %d/%d predictions' % (len(pred_set), len(input_sentence)))
+
+    with open('cache/' + tmp_file + '.json', 'w') as f:
+        json.dump(pred_set, f)
+
+    json.dump(pred_set, open('cache/' + tmp_file + '.json', 'w'))
+
+    result = 'cache/' + tmp_file + '.json'
+    cocoRes = coco_set.loadRes(result)
+    cocoEval = COCOEvalCap(coco_set, cocoRes)
+    cocoEval.params['image_id'] = cocoRes.getImgIds()
+    cocoEval.evaluate()
+
+    # delete the temp file
+    #keep output to read first
+    #os.system('rm ' + 'cache/' + tmp_file + '.json')
+
+
+    # create output dictionary
+    out = {}
+    for metric, score in cocoEval.eval.items():
+        out[metric] = score
+
+    return out
 
 def eval(data_loader, model, dictionary, loss_f, optimizer):
     model.eval()
