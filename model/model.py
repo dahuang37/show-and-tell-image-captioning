@@ -96,8 +96,19 @@ class Decoder(BaseModel):
         outputs = self.linear(hiddens[0])
         return outputs
 
-    def inference(self, features):
-        pass
+    def inference(self, features, states = None):
+        inference_output = []
+        rnn_input = features.unsqueeze(1)
+        for i in range(20):
+            hiddens, states = self.rnn(rnn_input, states)
+            rnn_outputs = self.decoder_linear(hiddens.squeeze(1))
+            prediction = rnn_outputs.max(1)[1]
+            inference_output.append(prediction)
+            rnn_input = self.embedding(prediction)
+            rnn_input = rnn_input.unsqueeze(1)
+        inference_output = torch.cat(inference_output,1)
+
+        return inference_output
 
 
 
