@@ -70,11 +70,11 @@ def save_vocab(json, threshold, file_path):
     """
     vocab = build_vocab(json=json, threshold=threshold)
     vocab_path = file_path
-    with open(vocab_path, 'wb') as f:
-        pickle.dump(vocab, f)
+    # with open(vocab_path, 'wb') as f:
+        # pickle.dump(vocab, f)
 
     print("Total Vocabulary size: {}".format(len(vocab)))
-    print("Saving to {}".format(vocab_path))
+    # print("Saving to {}".format(vocab_path))
 
 def main(args):
     json = args.json

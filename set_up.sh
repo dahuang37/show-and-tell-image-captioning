@@ -1,4 +1,5 @@
 # create dir 
+mkdir data
 mkdir ./data/coco ./data/sbu ./data/pascal ./data/flickr30k ./data/flickr8k ./checkpoints
 
 # download data
