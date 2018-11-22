@@ -15,5 +15,6 @@ python ./datasets/build_vocab.py
 echo "Spliting mscoco val data to test"
 python ./datasets/mscoco.py
 
- 
+echo "Getting eval repo"
+git clone https://github.com/salaniz/pycocoevalcap 
 
