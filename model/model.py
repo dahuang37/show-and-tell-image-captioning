@@ -45,8 +45,28 @@ class BaselineModel(BaseModel):
 
         return outputs
 
-    def inference(self):
-        pass
+    def inference(self, images, states = None):
+        with torch.no_grad():
+            features = self.resnet(images)
+
+        features = features.reshape(features.shape[0], -1)
+        features = self.bn(self.encoder_linear(features))
+        # print(features.shape)
+        inference_output = None
+        inference_output = []
+        rnn_input = features.unsqueeze(1)
+        for i in range(20):
+            hiddens, states = self.rnn(rnn_input, states)
+            rnn_outputs = self.decoder_linear(hiddens.squeeze(1))
+            prediction = rnn_outputs.max(1)[1]
+            inference_output.append(prediction)
+            rnn_input = self.embedding(prediction)
+            rnn_input = rnn_input.unsqueeze(1)
+        # print(len(inference_output))
+        inference_output = torch.stack(inference_output,1)
+
+        return inference_output
+    
 
 class Encoder(BaseModel):
     '''
@@ -96,8 +116,19 @@ class Decoder(BaseModel):
         outputs = self.linear(hiddens[0])
         return outputs
 
-    def inference(self, features):
-        pass
+    def inference(self, features, states = None):
+        inference_output = []
+        rnn_input = features.unsqueeze(1)
+        for i in range(20):
+            hiddens, states = self.rnn(rnn_input, states)
+            rnn_outputs = self.decoder_linear(hiddens.squeeze(1))
+            prediction = rnn_outputs.max(1)[1]
+            inference_output.append(prediction)
+            rnn_input = self.embedding(prediction)
+            rnn_input = rnn_input.unsqueeze(1)
+        inference_output = torch.cat(inference_output,1)
+
+        return inference_output
 
 
 

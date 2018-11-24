@@ -43,7 +43,7 @@ class Trainer(BaseTrainer):
 
         start_time = time.time()
         total_loss = 0
-        for batch_idx, (images, captions, lengths) in enumerate(self.data_loader):
+        for batch_idx, (images, captions, lengths, _) in enumerate(self.data_loader):
             
             images, captions = images.to(device), captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
@@ -87,7 +87,7 @@ class Trainer(BaseTrainer):
         total_val_loss = 0
         # total_val_metrics = np.zeros(len(self.metrics))
         with torch.no_grad():
-            for batch_idx, (images, captions, lengths) in enumerate(self.valid_data_loader):
+            for batch_idx, (images, captions, lengths, _) in enumerate(self.valid_data_loader):
 
                 images, captions = images.to(device), captions.to(device)
 
