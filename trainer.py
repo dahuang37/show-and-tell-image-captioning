@@ -43,7 +43,7 @@ class Trainer(BaseTrainer):
 
         start_time = time.time()
         total_loss = 0
-        for batch_idx, (images, captions, lengths) in enumerate(self.data_loader):
+        for batch_idx, (images, captions, lengths, _) in enumerate(self.data_loader):
             
             images, captions = images.to(device), captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]

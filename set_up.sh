@@ -1,4 +1,5 @@
 # create dir 
+mkdir data
 mkdir ./data/coco ./data/sbu ./data/pascal ./data/flickr30k ./data/flickr8k ./checkpoints
 
 # download data
@@ -14,5 +15,6 @@ python ./datasets/build_vocab.py
 echo "Spliting mscoco val data to test"
 python ./datasets/mscoco.py
 
- 
+echo "Getting eval repo"
+git clone https://github.com/salaniz/pycocoevalcap 
 

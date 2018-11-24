@@ -35,7 +35,7 @@ parser.add_argument('--embed_size', default=256, type=int,
                     help='dimension for word embedding vector')
 parser.add_argument('--hidden_size', default=512, type=int,
                     help='dimension for lstm hidden layer')
-parser.add_argument('--cnn_model', default="resnet18", type=str,
+parser.add_argument('--cnn_model', default="resnet152", type=str,
                     help='pretrained cnn model used')
 
 
@@ -105,7 +105,7 @@ def main(args):
     trainer.train()
 
     # # See training history
-    # print(logger)
+    
 
 
 if __name__ == '__main__':
