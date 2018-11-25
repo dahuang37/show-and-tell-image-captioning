@@ -23,23 +23,25 @@ from model.model import Encoder, Decoder, BaselineModel
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def coco_metric(input_sentence):
-    sys.path.append("coco-caption")
+def coco_metric(input_sentence, tmp_file=None):
     path_anna = "data/coco/annotations/captions_test2014_reserved.json"
-    encoder.FLOAT_REPR = lambda o: format(o, '.3f')
-    random.seed(time.time())
-    tmp_file = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
     coco_set = COCO(path_anna)
     imgid_set = coco_set.getImgIds()
-    print(input_sentence[0])
-    pred_set = [prediction for prediction in input_sentence if prediction['image_id'] in imgid_set]
-    print('using %d/%d predictions' % (len(pred_set), len(input_sentence)))
 
-    with open('cache/' + tmp_file + '.json', 'w') as f:
-        json.dump(pred_set, f)
 
-    json.dump(pred_set, open('cache/' + tmp_file + '.json', 'w'))
+    if tmp_file is None:
+        encoder.FLOAT_REPR = lambda o: format(o, '.3f')
+        random.seed(time.time())
+        tmp_file = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(6))
+
+        
+        pred_set = [prediction for prediction in input_sentence if prediction['image_id'] in imgid_set]
+        print('using %d/%d predictions' % (len(pred_set), len(input_sentence)))
+
+        with open('cache/' + tmp_file + '.json', 'w') as f:
+            json.dump(pred_set, f)
+
 
     result = 'cache/' + tmp_file + '.json'
     cocoRes = coco_set.loadRes(result)
@@ -152,7 +154,7 @@ if __name__ == '__main__':
                         help='pretrained cnn model used')
     
     
-    main(parser.parse_args())
-
+    # main(parser.parse_args())
+    coco_metric(None, tmp_file="BPXWB5")
 
 

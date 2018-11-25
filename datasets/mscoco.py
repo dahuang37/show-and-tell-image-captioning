@@ -33,11 +33,14 @@ class CocoDataset(Dataset):
 		self.transform = transform
 		self.coco = COCO(annFile)
 		self.ids = list(self.coco.anns.keys())
+		
 
 	def __getitem__(self, index):
 		"""
 		returns one data pair (image and caption)
 		"""
+		# print(index)
+		
 		coco = self.coco
 		vocab = self.vocab
 		ann_id = self.ids[index]
@@ -181,4 +184,5 @@ if __name__ == '__main__':
 	parser.add_argument('--json', type=str, default="./data/coco/annotations/captions_val2014.json", help="path for val annoations")
 	args = parser.parse_args()
 	main(args)
+	
 
