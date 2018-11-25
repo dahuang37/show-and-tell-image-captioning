@@ -1,10 +1,9 @@
 import nltk
-nltk.download('punkt')
 import pickle
 import argparse
 from collections import Counter
 from pycocotools.coco import COCO
-
+import json
 
 class Vocabulary(object):
     """
@@ -64,6 +63,28 @@ def build_vocab(json, threshold=5):
         vocab.add_word(word)
     return vocab
 
+# def flickr8k_build_vocab(, threshold=5):
+#     ann = json.load(open(json_dict, 'r'))
+#     assert type(ann) == dict, 'annotation file format {} not supported'.format(type(ann))
+#     ids = ann.keys()
+#     counter = Counter()
+#     for i, id in enumerate(ids):
+#         caption = str(ann[id]['caption'])
+#         tokens = nltk.tokenize.word_tokenize(caption.lower())
+#         counter.update(tokens)
+#     words = [word for word, cnt in counter.items() if cnt >= threshold]
+#     vocab = Vocabulary()
+#     vocab.add_word('<pad>')
+#     vocab.add_word('<start>')
+#     vocab.add_word('<end>')
+#     vocab.add_word('<unk>')
+#
+#     for i, word in enumerate(words):
+#         vocab.add_word(word)
+#     vocab_path = '../data/Flickr8k_text/vocab.pkl'
+#     with open(vocab_path, 'wb') as f:
+#         pickle.dump(vocab, f)
+#     print("Total Vocabulary size: {}".format(len(vocab)))
 
 def save_vocab(json, threshold, file_path):
     """
@@ -71,8 +92,8 @@ def save_vocab(json, threshold, file_path):
     """
     vocab = build_vocab(json=json, threshold=threshold)
     vocab_path = file_path
-    # with open(vocab_path, 'wb') as f:
-        # pickle.dump(vocab, f)
+    with open(vocab_path, 'wb') as f:
+        pickle.dump(vocab, f)
 
     print("Total Vocabulary size: {}".format(len(vocab)))
     # print("Saving to {}".format(vocab_path))
@@ -85,8 +106,12 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--json', type=str, default="./data/coco/annotations/captions_train2014.json", help="path for annoations")
-    parser.add_argument("--file_path", type=str, default="./data/coco/vocab.pkl", help="path for vocab file")
+    flickr8k_json = "../data/Flickr8k_text/flickr8k_ann.json"
+    flickr8k_vocab_path = '../data/Flickr8k_text/vocab.pkl'
+    coco_json = "./data/coco/annotations/captions_train2014.json"
+    coco_vocab_path = "./data/coco/vocab.pkl"
+    parser.add_argument('--json', type=str, default= flickr8k_json, help="path for annoations")
+    parser.add_argument("--file_path", type=str, default= flickr8k_vocab_path, help="path for vocab file")
     parser.add_argument("--threshold", type=int, default=5, help="min num of word counts")
     args = parser.parse_args()
     main(args)
