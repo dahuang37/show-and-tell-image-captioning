@@ -91,8 +91,10 @@ def makejson():
     tokenpath = '../data/flickr8k/Flickr8k_text/Flickr8k.token.txt'
     ann_list = dd(list)
     imageinfo_list = {}
+    buildvocab_dict = {'annotations': []}
     #imagetoann_dict = dd(list)
     ann_out = '../data/flickr8k/Flickr8k_text/flickr8k_ann.json'
+    buildvocab_out = '../data/flickr8k/Flickr8k_text/buildvocab.json'
     #imagetoann_out = '../data/Flickr8k_text/flickr8k_imagetoannID.json'
     #imagetocaption_dict = dd(list)
     #imagetocaption_out = '../data/Flickr8k_text/flickr8k_imagetocaption.json'
@@ -111,6 +113,7 @@ def makejson():
             annID_dict['caption'] = caption
             annID_dict['image_id'] = image_file
             annID_dict['id'] = id
+            buildvocab_dict['annotations'].append(annID_dict)
             id += 1
             annID_dict['caption_number'] = annID
             ann_list[image_file].append(annID_dict)
@@ -122,6 +125,9 @@ def makejson():
         json.dump(ann_list, outfile )
     with open(imageinfo_out,'w') as outfile:
         json.dump(imageinfo_list, outfile)
+    with open(buildvocab_out,'w') as outfile:
+        json.dump(buildvocab_dict, outfile)
+
     # with open(imagetoann_out, 'w') as outfile:
     #     json.dump(imagetoann_dict, outfile)
     # with open(imagetocaption_out, 'w') as outfile:
