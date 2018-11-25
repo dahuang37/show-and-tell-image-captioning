@@ -88,15 +88,15 @@ def collate_fn(data):
 
 
 def makejson():
-    tokenpath = '../data/Flickr8k_text/Flickr8k.token.txt'
+    tokenpath = '../data/Flickr8k/Flickr8k_text/Flickr8k.token.txt'
     ann_list = dd(list)
     imageinfo_list = {}
     #imagetoann_dict = dd(list)
-    ann_out = '../data/Flickr8k_text/flickr8k_ann.json'
+    ann_out = '../data/Flickr8k/Flickr8k_text/flickr8k_ann.json'
     #imagetoann_out = '../data/Flickr8k_text/flickr8k_imagetoannID.json'
     #imagetocaption_dict = dd(list)
     #imagetocaption_out = '../data/Flickr8k_text/flickr8k_imagetocaption.json'
-    imageinfo_out = '../data/Flickr8k_text/flickr8k_imageinfo.json'
+    imageinfo_out = '../data/Flickr8k/Flickr8k_text/flickr8k_imageinfo.json'
     id = 0
     with open(tokenpath,'r') as f:
         lines = f.readlines()
@@ -128,11 +128,11 @@ def makejson():
     #     json.dump(imagetocaption_dict, outfile)
 
 
-def generate_test_entries(annFile= "../data/Flickr8k_text/flickr8k_ann.json" , root="../data/Flickr8k_text/",
+def generate_test_entries(annFile= "../data/Flickr8k/Flickr8k_text/flickr8k_ann.json" , root="../data/Flickr8k/Flickr8k_text/",
                           new_valid_filename="captions_flickr8k_val.json",
                           new_test_filename="captions_flickr8k_test.json",
                           new_train_filename="captions_flickr8k_train.json",
-                          imageinfo_filename = "../data/Flickr8k_text/flickr8k_imageinfo.json"):
+                          imageinfo_filename = "../data/Flickr8k/Flickr8k_text/flickr8k_imageinfo.json"):
     """
     reserves 4k images from validation as test
     """
@@ -194,7 +194,7 @@ def generate_test_entries(annFile= "../data/Flickr8k_text/flickr8k_ann.json" , r
         json.dump(train_dict, f)
 
 def get_vocab():
-    with open("./data/Flickr_text/vocab.pkl", 'rb') as f:
+    with open("./data/Flickr8k/Flickr_text/vocab.pkl", 'rb') as f:
         vocab = pickle.load(f)
     return vocab
 
@@ -214,8 +214,8 @@ def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_work
 		num_workers:thread used for dataloader [default:0]
 	"""
     assert (mode in ["train", "valid", "test"])
-    root = "../data/Flickr8k_Dataset/"
-    annFile = "../data/Flickr8k_text/captions_flickr8k_" + mode + ".json"
+    root = "../data/Flickr8k/Flickr8k_Dataset/"
+    annFile = "../data/Flickr8k/Flickr8k_text/captions_flickr8k_" + mode + ".json"
 
     dataset = Flickr8kDataset(root=root,
 					  annFile=annFile,
