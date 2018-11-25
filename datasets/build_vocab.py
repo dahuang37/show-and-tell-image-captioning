@@ -106,8 +106,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    flickr8k_json = "../data/Flickr8k/Flickr8k_text/flickr8k_ann.json"
-    flickr8k_vocab_path = '../data/Flickr8k/Flickr8k_text/vocab.pkl'
+    flickr8k_json = "../data/flickr8k/Flickr8k_text/flickr8k_ann.json"
+    flickr8k_vocab_path = '../data/flickr8k/Flickr8k_text/vocab.pkl'
     coco_json = "./data/coco/annotations/captions_train2014.json"
     coco_vocab_path = "./data/coco/vocab.pkl"
     parser.add_argument('--json', type=str, default= flickr8k_json, help="path for annoations")
