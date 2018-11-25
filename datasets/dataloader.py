@@ -1,6 +1,6 @@
 import os
 import torch
-from . import mscoco
+from . import mscoco, flickr8k
 
 
 def get_data_loader(dataset="mscoco"):
