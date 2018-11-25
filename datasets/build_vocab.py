@@ -1,4 +1,5 @@
 import nltk
+nltk.download('punkt')
 import pickle
 import argparse
 from collections import Counter
