@@ -219,8 +219,8 @@ def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_work
 		shuffle:	shuffle or not [default: true]
 		num_workers:thread used for dataloader [default:0]
 	"""
-    assert (mode in ["train", "valid", "test"])
-    root = "../data/flickr8k/Flickr8k_Dataset/"
+    assert (mode in ["train", "val", "test"])
+    root = "../data/flickr8k/Flicker8k_Dataset/"
     annFile = "../data/flickr8k/Flickr8k_text/captions_flickr8k_" + mode + ".json"
 
     dataset = Flickr8kDataset(root=root,
