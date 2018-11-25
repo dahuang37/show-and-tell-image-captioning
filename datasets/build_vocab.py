@@ -50,7 +50,7 @@ def build_vocab(json, threshold=5):
         caption = str(coco.anns[id]['caption'])
         tokens = nltk.tokenize.word_tokenize(caption.lower())
         counter.update(tokens)
-
+        print(i)
     words = [word for word, cnt in counter.items() if cnt >= threshold]
 
     vocab = Vocabulary()
