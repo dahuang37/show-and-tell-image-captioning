@@ -7,7 +7,7 @@ from torchvision import transforms
 from PIL import Image
 from pycocotools.coco import COCO
 import nltk
-from build_vocab import Vocabulary
+from .build_vocab import Vocabulary
 import pickle
 import json
 import argparse
@@ -200,7 +200,7 @@ def generate_test_entries(annFile= "../data/flickr8k/Flickr8k_text/flickr8k_ann.
         json.dump(train_dict, f)
 
 def get_vocab():
-    with open("./data/flickr8k/Flickr_text/vocab.pkl", 'rb') as f:
+    with open("./data/flickr8k/Flickr8k_text/vocab.pkl", 'rb') as f:
         vocab = pickle.load(f)
     return vocab
 
@@ -220,8 +220,8 @@ def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_work
 		num_workers:thread used for dataloader [default:0]
 	"""
     assert (mode in ["train", "val", "test"])
-    root = "../data/flickr8k/Flicker8k_Dataset/"
-    annFile = "../data/flickr8k/Flickr8k_text/captions_flickr8k_" + mode + ".json"
+    root = "./data/flickr8k/Flicker8k_Dataset/"
+    annFile = "./data/flickr8k/Flickr8k_text/captions_flickr8k_" + mode + ".json"
 
     dataset = Flickr8kDataset(root=root,
 					  annFile=annFile,
@@ -237,19 +237,17 @@ def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_work
     return data_loader
 
 
-# def main(args):
-#     # generate test images
-#     print("Createing annotations json for splited val and test")
-#     generate_test_entries(args.json)
-#
-#
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--json', type=str, default="./data/Flickr8k_text/flickr8k_ann.json", help="path for val annoations")
-#     args = parser.parse_args()
-#     main(args)
+def main(args):
+    makejson()
+    generate_test_entries()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--json', type=str, default="./data/Flickr8k_text/flickr8k_ann.json", help="path for val annoations")
+    args = parser.parse_args()
+    main(args)
 
 
 
-makejson()
-generate_test_entries()
+
