@@ -14,7 +14,3 @@ python ./datasets/build_vocab.py
 # create custom valid and test data
 echo "Spliting mscoco val data to test"
 python ./datasets/mscoco.py
-
-echo "Getting eval repo"
-git clone https://github.com/salaniz/pycocoevalcap 
-

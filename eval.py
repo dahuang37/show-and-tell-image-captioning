@@ -24,7 +24,7 @@ from model.model import Encoder, Decoder, BaselineModel
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def coco_metric(input_sentence, tmp_file=None):
-    path_anna = "data/coco/annotations/captions_test2014_reserved.json"
+    path_anna = "data/flickr8k/Flickr8k_text/captions_flickr8k_test.json"
 
     coco_set = COCO(path_anna)
     imgid_set = coco_set.getImgIds()
@@ -70,35 +70,35 @@ def eval(data_loader, model, dictionary, loss_f, optimizer=None):
     image_set = []
     predictions = []
 
-    for batch_id, (images, captions, lengths, img_id) in enumerate(data_loader):
-        images, captions = images.to(device), captions.to(device)
-        targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
+    # for batch_id, (images, captions, lengths, img_id) in enumerate(data_loader):
+    #     images, captions = images.to(device), captions.to(device)
+    #     targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
 
-        output = model(images, captions, lengths)
-        loss = loss_f(output, targets)
-        total_loss += loss
-        num_loss += 1
+    #     output = model(images, captions, lengths)
+    #     loss = loss_f(output, targets)
+    #     total_loss += loss
+    #     num_loss += 1
 
-        inference_output = model.inference(images)
+    #     inference_output = model.inference(images)
 
-        inference_output = inference_output.cpu().data.numpy()
-        sentence_output = []
-        for sentence_id in inference_output:
-            sentence = []
-            for word_id in sentence_id:
-                word = dictionary.idx2word[word_id]
-                if word == '<end>':
-                    break
-                sentence.append(word)
-            sentence_one = ''.join(sentence)
-            sentence_output.append(sentence_one)
-        for id, sentence in enumerate(sentence_output):
-            if img_id[id] in image_set:
-                continue
-            else:
-                image_set.append(img_id[id])
-            pred = {'img_id': img_id[id], 'caption': sentence}
-            predictions.append(pred)
+    #     inference_output = inference_output.cpu().data.numpy()
+    #     sentence_output = []
+    #     for sentence_id in inference_output:
+    #         sentence = []
+    #         for word_id in sentence_id:
+    #             word = dictionary.idx2word[word_id]
+    #             if word == '<end>':
+    #                 break
+    #             sentence.append(word)
+    #         sentence_one = ''.join(sentence)
+    #         sentence_output.append(sentence_one)
+    #     for id, sentence in enumerate(sentence_output):
+    #         if img_id[id] in image_set:
+    #             continue
+    #         else:
+    #             image_set.append(img_id[id])
+    #         pred = {'img_id': img_id[id], 'caption': sentence}
+    #         predictions.append(pred)
 
     with torch.no_grad():
         for batch_id, (images, captions, lengths, img_id) in enumerate(data_loader):
@@ -121,6 +121,8 @@ def eval(data_loader, model, dictionary, loss_f, optimizer=None):
                 sentence = []
                 for word_id in sentence_id:
                     word = dictionary.idx2word[word_id]
+                    if word == '<start>':
+                        continue
                     if word == '<end>':
                         break
                     sentence.append(word)
@@ -146,7 +148,8 @@ def main(args):
     test_transform = transforms.Compose([
                     transforms.Resize((224, 224)),
                     transforms.ToTensor(), 
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+                    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                     std=[0.5, 0.5, 0.5])])
 
     vocab = dataloader.get_vocab(dataset=args.dataset)()
     data_loader = dataloader.get_data_loader(dataset=args.dataset)(mode="test",
@@ -162,20 +165,18 @@ def main(args):
 
     eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss)
 
-    print(coco_stat)
-    print(eval_loss)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Show and Tell')
     parser.add_argument('-cp', '--checkpoint_path', type=str,
                         help='checkpoint path to be loaded')
-    parser.add_argument('-b', '--batch-size', default=128, type=int,
+    parser.add_argument('-b', '--batch-size', default=4, type=int,
                         help='mini-batch size (default: 4)')
     
     parser.add_argument('--dataset', default="mscoco", type=str,
                         help='dataset used [mscoco | flickr8k | flickr30k | sbu | pascal]')
 
-    parser.add_argument('--embed_size', default=256, type=int,
+    parser.add_argument('--embed_size', default=512, type=int,
                         help='dimension for word embedding vector')
     parser.add_argument('--hidden_size', default=512, type=int,
                         help='dimension for lstm hidden layer')
@@ -183,7 +184,6 @@ if __name__ == '__main__':
                         help='pretrained cnn model used')
     
     
-    # main(parser.parse_args())
-    coco_metric(None, tmp_file="BPXWB5")
-
+    main(parser.parse_args())
+    # coco_metric(None, "2M32TB")
 
