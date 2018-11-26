@@ -5,86 +5,86 @@ from torch.utils.data import Dataset
 import torchvision
 from torchvision import transforms
 from PIL import Image
-#from pycocotools.coco import COCO
+from pycocotools.coco import COCO
 import nltk
-#from .build_vocab import Vocabulary
+from .build_vocab import Vocabulary
 import pickle
 import json
 import argparse
 from collections import defaultdict as dd
 
 
-# class Flickr30kDataset(Dataset):
-#     """
-#         Flickr Custom Dataset
-#     """
-#
-#     def __init__(self, root, annFile, vocab=None, transform=None):
-#         """
-#         Set the path for images, captions, and vocabulary wrapper
-#
-#         Args:
-#             root: Image root [./data/coco/train2014]
-#             annFile: Json annotations for images
-#             vocab:
-#             transform:
-#         """
-#         self.root = root
-#         self.annFile = annFile
-#         self.vocab = vocab
-#         self.transform = transform
-#         self.coco = COCO(annFile)
-#         self.ids = list(self.coco.anns.keys())
-#
-#     def __getitem__(self, index):
-#         """
-#         returns one data pair (image and caption)
-#         """
-#         coco = self.coco
-#         vocab = self.vocab
-#         ann_id = self.ids[index]
-#         caption = coco.anns[ann_id]['caption']
-#         img_id = coco.anns[ann_id]['image_id']
-#
-#         image = Image.open(os.path.join(self.root, img_id)).convert('RGB')
-#         if self.transform is not None:
-#             image = self.transform(image)
-#         # # Convert caption (string) to word ids.
-#         tokens = nltk.tokenize.word_tokenize(str(caption).lower())
-#         caption = []
-#         caption.append(vocab('<start>'))
-#         for token in tokens:
-#             caption.append(vocab(token))
-#         caption.append(vocab('<end>'))
-#         target = torch.Tensor(caption)
-#         return image, target, img_id
-#
-#     def __len__(self):
-#         return len(self.ids)
-#
-#
-# def collate_fn(data):
-#     """
-#     Pad the captions to have equal (maxiimal) length
-#
-#     Returns:
-#         images: shape (batch_size, 3, 224, 224)
-#         captions: shape (batch_size, padded_length)
-#         lengths: valid lengths for each padded captions shape (batch_size, )
-#     """
-#     data.sort(key=lambda x: len(x[1]), reverse=True)
-#
-#     images, captions, img_id = zip(*data)
-#     images = torch.stack(images, 0)
-#     lengths = [len(cap) for cap in captions]
-#     # important to initilize as zero <pad>
-#     targets = torch.zeros(len(captions), max(lengths)).long()
-#     for i, cap in enumerate(captions):
-#         end = lengths[i]
-#         targets[i, :end] = cap[:end]
-#
-#     return images, targets, lengths, img_id
-#
+class Flickr30kDataset(Dataset):
+    """
+        Flickr Custom Dataset
+    """
+
+    def __init__(self, root, annFile, vocab=None, transform=None):
+        """
+        Set the path for images, captions, and vocabulary wrapper
+
+        Args:
+            root: Image root [./data/coco/train2014]
+            annFile: Json annotations for images
+            vocab:
+            transform:
+        """
+        self.root = root
+        self.annFile = annFile
+        self.vocab = vocab
+        self.transform = transform
+        self.coco = COCO(annFile)
+        self.ids = list(self.coco.anns.keys())
+
+    def __getitem__(self, index):
+        """
+        returns one data pair (image and caption)
+        """
+        coco = self.coco
+        vocab = self.vocab
+        ann_id = self.ids[index]
+        caption = coco.anns[ann_id]['caption']
+        img_id = coco.anns[ann_id]['image_id']
+
+        image = Image.open(os.path.join(self.root, img_id)).convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
+        # # Convert caption (string) to word ids.
+        tokens = nltk.tokenize.word_tokenize(str(caption).lower())
+        caption = []
+        caption.append(vocab('<start>'))
+        for token in tokens:
+            caption.append(vocab(token))
+        caption.append(vocab('<end>'))
+        target = torch.Tensor(caption)
+        return image, target, img_id
+
+    def __len__(self):
+        return len(self.ids)
+
+
+def collate_fn(data):
+    """
+    Pad the captions to have equal (maxiimal) length
+
+    Returns:
+        images: shape (batch_size, 3, 224, 224)
+        captions: shape (batch_size, padded_length)
+        lengths: valid lengths for each padded captions shape (batch_size, )
+    """
+    data.sort(key=lambda x: len(x[1]), reverse=True)
+
+    images, captions, img_id = zip(*data)
+    images = torch.stack(images, 0)
+    lengths = [len(cap) for cap in captions]
+    # important to initilize as zero <pad>
+    targets = torch.zeros(len(captions), max(lengths)).long()
+    for i, cap in enumerate(captions):
+        end = lengths[i]
+        targets[i, :end] = cap[:end]
+
+    return images, targets, lengths, img_id
+
 #
 
 def makejson():
@@ -205,7 +205,7 @@ def generate_test_entries(annFile= "../data/flickr30k/flickr30k_ann.json" , root
         json.dump(train_dict, f)
 
 def get_vocab():
-    with open("./data/flickr8k/Flickr8k_text/vocab.pkl", 'rb') as f:
+    with open("./data/flickr30k/vocab.pkl", 'rb') as f:
         vocab = pickle.load(f)
     return vocab
 
@@ -225,10 +225,10 @@ def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_work
 		num_workers:thread used for dataloader [default:0]
 	"""
     assert (mode in ["train", "val", "test"])
-    root = "./data/flickr8k/Flicker8k_Dataset/"
-    annFile = "./data/flickr8k/Flickr8k_text/captions_flickr8k_" + mode + ".json"
+    root = "./data/flickr30k/flickr30k_images/"
+    annFile = "./data/flickr30k/captions_flickr30k_" + mode + ".json"
 
-    dataset = Flickr8kDataset(root=root,
+    dataset = Flickr30kDataset(root=root,
 					  annFile=annFile,
 					  vocab=vocab,
 					  transform=transform)
@@ -249,7 +249,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--json', type=str, default="./data/Flickr8k_text/flickr8k_ann.json", help="path for val annoations")
+    parser.add_argument('--json', type=str, default="./data/flickr30k/flickr30k_ann.json", help="path for val annoations")
     args = parser.parse_args()
     main(args)
 
