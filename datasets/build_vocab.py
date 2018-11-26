@@ -109,10 +109,13 @@ if __name__ == '__main__':
     flickr8k_vocab_path = '../data/flickr8k/Flickr8k_text/vocab.pkl'
     coco_json = "./data/coco/annotations/captions_train2014.json"
     coco_vocab_path = "./data/coco/vocab.pkl"
-    parser.add_argument('--json', type=str, default= flickr8k_json, help="path for annoations")
-    parser.add_argument("--file_path", type=str, default= flickr8k_vocab_path, help="path for vocab file")
+    flickr30k_json = "../data/flickr30k/buildvocab.json"
+    flickr30k_vocab_path = '../data/flickr30k/vocab.pkl'
+    parser.add_argument('--json', type=str, default= coco_json, help="path for annoations")
+    parser.add_argument("--file_path", type=str, default= coco_vocab_path, help="path for vocab file")
     parser.add_argument("--threshold", type=int, default=5, help="min num of word counts")
     args = parser.parse_args()
+
     main(args)
 
 
