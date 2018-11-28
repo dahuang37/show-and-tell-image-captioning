@@ -29,7 +29,6 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
     coco_set = COCO(path_anna)
     imgid_set = coco_set.getImgIds()
 
-
     if tmp_file is None:
         encoder.FLOAT_REPR = lambda o: format(o, '.3f')
         random.seed(time.time())
@@ -39,6 +38,7 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
         pred_set = [prediction for prediction in input_sentence if prediction['image_id'] in imgid_set]
         print('using %d/%d predictions' % (len(pred_set), len(input_sentence)))
 
+        ensure_dir('cache/' + tmp_file + '.json', 'w')
         with open('cache/' + tmp_file + '.json', 'w') as f:
             json.dump(pred_set, f)
 
