@@ -24,7 +24,7 @@ class Flickr8kDataset(Dataset):
         Set the path for images, captions, and vocabulary wrapper
 
         Args:
-            root: Image root [./data/coco/train2014]
+            root: Image root [./data/flickr8k/]
             annFile: Json annotations for images
             vocab:
             transform:

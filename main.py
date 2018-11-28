@@ -31,7 +31,7 @@ parser.add_argument('--save-freq', default=1, type=int,
 parser.add_argument('--dataset', default="mscoco", type=str,
                     help='dataset used [mscoco | flickr8k | flickr30k | sbu | pascal]')
 
-parser.add_argument('--embed_size', default=256, type=int,
+parser.add_argument('--embed_size', default=512, type=int,
                     help='dimension for word embedding vector')
 parser.add_argument('--hidden_size', default=512, type=int,
                     help='dimension for lstm hidden layer')
@@ -43,6 +43,9 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def main(args):
+    # TODO
+    # add normlaize
+    # init lstm
 
     # transform
     train_transform = transforms.Compose([
@@ -50,12 +53,14 @@ def main(args):
                     #transforms.RandomCrop(224),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(), 
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+                    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])])
 
     val_transform = transforms.Compose([
                     transforms.Resize((224, 224)),
                     transforms.ToTensor(), 
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+                    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])])
 
     vocab = dataloader.get_vocab(dataset=args.dataset)()
     # Data loader and validation split
@@ -90,7 +95,7 @@ def main(args):
     # Trainer instance
     trainer = Trainer(model, loss, metrics=None,
                       data_loader=data_loader,
-                      valid_data_loader=valid_data_loader,
+                      valid_data_loader=None,
                       optimizer=optimizer,
                       epochs=args.epochs,
                       logger=logger,
