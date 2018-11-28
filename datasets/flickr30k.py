@@ -7,7 +7,7 @@ from torchvision import transforms
 from PIL import Image
 from pycocotools.coco import COCO
 import nltk
-from build_vocab import Vocabulary
+from .build_vocab import Vocabulary
 import pickle
 import json
 import argparse

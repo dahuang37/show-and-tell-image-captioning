@@ -1,4 +1,5 @@
 import nltk
+nltk.download("punkt")
 import pickle
 import argparse
 from collections import Counter
@@ -47,7 +48,7 @@ def build_vocab(json, threshold=5):
     ids = coco.anns.keys()
     counter = Counter()
     for i, id in enumerate(ids):
-        caption = str(coco.anns[id]['caption'])
+        caption = coco.anns[id]['caption'].encode('utf-8')
         tokens = nltk.tokenize.word_tokenize(caption.lower())
         counter.update(tokens)
     words = [word for word, cnt in counter.items() if cnt >= threshold]
