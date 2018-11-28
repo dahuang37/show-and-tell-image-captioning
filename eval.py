@@ -38,7 +38,7 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
         pred_set = [prediction for prediction in input_sentence if prediction['image_id'] in imgid_set]
         print('using %d/%d predictions' % (len(pred_set), len(input_sentence)))
 
-        ensure_dir('cache/' + tmp_file + '.json', 'w')
+        ensure_dir('cache/' + tmp_file + '.json')
         with open('cache/' + tmp_file + '.json', 'w') as f:
             json.dump(pred_set, f)
 
