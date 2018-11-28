@@ -23,8 +23,8 @@ from model.model import Encoder, Decoder, BaselineModel
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def coco_metric(input_sentence, tmp_file=None):
-    path_anna = "data/flickr8k/Flickr8k_text/captions_flickr8k_test.json"
+def coco_metric(input_sentence, path_anna ,tmp_file=None):
+
 
     coco_set = COCO(path_anna)
     imgid_set = coco_set.getImgIds()
@@ -61,7 +61,7 @@ def coco_metric(input_sentence, tmp_file=None):
 
     return out
 
-def eval(data_loader, model, dictionary, loss_f, optimizer=None):
+def eval(data_loader, model, dictionary, loss_f, optimizer=None, test_path):
     model.eval()
     
     total_loss = 0
@@ -138,7 +138,7 @@ def eval(data_loader, model, dictionary, loss_f, optimizer=None):
                 pred = {'image_id': img_id[id], 'caption': sentence}
                 predictions.append(pred)
             progress_bar(batch_id, len(data_loader))
-    coco_stat = coco_metric(predictions)
+    coco_stat = coco_metric(predictions,test_path)
     eval_loss = total_loss/num_loss
     return eval_loss, coco_stat, predictions
 
@@ -163,7 +163,7 @@ def main(args):
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
 
-    eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss)
+    eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss,args.test_path)
 
 
 if __name__ == '__main__':
@@ -182,8 +182,10 @@ if __name__ == '__main__':
                         help='dimension for lstm hidden layer')
     parser.add_argument('--cnn_model', default="resnet152", type=str,
                         help='pretrained cnn model used')
-    
-    
+
+    parser.add_argument('--test_path', default="data/flickr8k/Flickr8k_text/captions_flickr8k_test.json", type=str,
+                        help='pretrained cnn model used')
+
     main(parser.parse_args())
     # coco_metric(None, "2M32TB")
 
