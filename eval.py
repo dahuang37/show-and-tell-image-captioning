@@ -37,7 +37,7 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
         pred_set = [prediction for prediction in input_sentence if prediction['image_id'] in imgid_set]
         print('using %d/%d predictions' % (len(pred_set), len(input_sentence)))
 
-        ensure_dir('cache/' + tmp_file + '.json')
+        ensure_dir('cache/')
         with open('cache/' + tmp_file + '.json', 'w') as f:
             json.dump(pred_set, f)
 
@@ -73,14 +73,14 @@ def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
             
             # computing loss
-            # output = model(images, captions, lengths)
-            # # output = pack_padded_sequence(output, lengths, batch_first=True)[0]
-            # loss = loss_f(output, targets)
-            # total_loss += loss
-            # num_loss += 1
+            output = model(images, captions, lengths)
+            # output = pack_padded_sequence(output, lengths, batch_first=True)[0]
+            loss = loss_f(output, targets)
+            total_loss += loss
+            num_loss += 1
 
-            # inference_output = model.inference(images)
-            beam_search = model.beam_search(images, k=2)
+            inference_output = model.inference(images)
+            # beam_search = model.beam_search(images, k=2)
 
             inference_output = inference_output.cpu().data.numpy()
             sentence_output = []
