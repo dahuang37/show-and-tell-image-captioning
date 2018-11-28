@@ -86,7 +86,7 @@ def main(args):
 
     # Specifying loss function, metric(s), and optimizer
     loss = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.learning_rate)
 
     
     # An identifier (prefix) for saved model
