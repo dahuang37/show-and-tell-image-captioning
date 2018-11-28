@@ -17,8 +17,7 @@ import datasets.dataloader as dataloader
 import argparse
 from torchvision import transforms
 import torch.nn as nn
-from model.model import Encoder, Decoder, BaselineModel
-
+from model.model import BaselineModel
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -50,8 +49,7 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
     cocoEval.evaluate()
 
     # delete the temp file
-    #keep output to read first
-    #os.system('rm ' + 'cache/' + tmp_file + '.json')
+    os.system('rm ' + 'cache/' + tmp_file + '.json')
 
 
     # create output dictionary
@@ -69,49 +67,20 @@ def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
     num_loss = 0
     image_set = []
     predictions = []
-
-    # for batch_id, (images, captions, lengths, img_id) in enumerate(data_loader):
-    #     images, captions = images.to(device), captions.to(device)
-    #     targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
-
-    #     output = model(images, captions, lengths)
-    #     loss = loss_f(output, targets)
-    #     total_loss += loss
-    #     num_loss += 1
-
-    #     inference_output = model.inference(images)
-
-    #     inference_output = inference_output.cpu().data.numpy()
-    #     sentence_output = []
-    #     for sentence_id in inference_output:
-    #         sentence = []
-    #         for word_id in sentence_id:
-    #             word = dictionary.idx2word[word_id]
-    #             if word == '<end>':
-    #                 break
-    #             sentence.append(word)
-    #         sentence_one = ''.join(sentence)
-    #         sentence_output.append(sentence_one)
-    #     for id, sentence in enumerate(sentence_output):
-    #         if img_id[id] in image_set:
-    #             continue
-    #         else:
-    #             image_set.append(img_id[id])
-    #         pred = {'img_id': img_id[id], 'caption': sentence}
-    #         predictions.append(pred)
-
     with torch.no_grad():
         for batch_id, (images, captions, lengths, img_id) in enumerate(data_loader):
             images, captions = images.to(device), captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
             
             # computing loss
-            output = model(images, captions, lengths)
-            loss = loss_f(output, targets)
-            total_loss += loss
-            num_loss += 1
+            # output = model(images, captions, lengths)
+            # # output = pack_padded_sequence(output, lengths, batch_first=True)[0]
+            # loss = loss_f(output, targets)
+            # total_loss += loss
+            # num_loss += 1
 
-            inference_output = model.inference(images)
+            # inference_output = model.inference(images)
+            beam_search = model.beam_search(images, k=2)
 
             inference_output = inference_output.cpu().data.numpy()
             sentence_output = []
@@ -138,8 +107,10 @@ def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
                 pred = {'image_id': img_id[id], 'caption': sentence}
                 predictions.append(pred)
             progress_bar(batch_id, len(data_loader))
-    coco_stat = coco_metric(predictions,test_path)
-    eval_loss = total_loss/num_loss
+
+    coco_stat = coco_metric(predictions)
+    eval_loss = total_loss/len(data_loader)
+
     return eval_loss, coco_stat, predictions
 
 
@@ -148,8 +119,8 @@ def main(args):
     test_transform = transforms.Compose([
                     transforms.Resize((224, 224)),
                     transforms.ToTensor(), 
-                    transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                     std=[0.5, 0.5, 0.5])])
+                    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])])
 
     vocab = dataloader.get_vocab(dataset=args.dataset)()
     data_loader = dataloader.get_data_loader(dataset=args.dataset)(mode="test",
@@ -158,7 +129,7 @@ def main(args):
                                                                    batch_size=args.batch_size,
                                                                    shuffle=False,
                                                                    num_workers=0)
-    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=1, cnn_model=args.cnn_model).to(device)
+    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=3, cnn_model=args.cnn_model).to(device)
     checkpoint = torch.load(args.checkpoint_path)
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
@@ -187,5 +158,5 @@ if __name__ == '__main__':
                         help='pretrained cnn model used')
 
     main(parser.parse_args())
-    # coco_metric(None, "2M32TB")
+    # coco_metric(None, "YG7FQK")
 

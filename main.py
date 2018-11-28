@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from model.model import Encoder, Decoder, BaselineModel
+from model.model import BaselineModel
 # from model.metric import my_metric, my_metric2
 from datasets import Vocabulary
 import datasets.dataloader as dataloader
@@ -37,20 +37,21 @@ parser.add_argument('--hidden_size', default=512, type=int,
                     help='dimension for lstm hidden layer')
 parser.add_argument('--cnn_model', default="resnet152", type=str,
                     help='pretrained cnn model used')
-
+parser.add_argument('--num_layers', default=3, type=int,
+                    help='number of layers for lstm')
+parser.add_argument('--dropout', default=0.3, type=float,
+                    help='dropout rate after each time step')
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def main(args):
-    # TODO
-    # add normlaize
-    # init lstm
+    args.save_dir = os.path.join(args.save_dir, args.dataset)
+    save_json(vars(args), args.save_dir, "hyper.json")
 
     # transform
     train_transform = transforms.Compose([
                     transforms.Resize((224, 224)),
-                    #transforms.RandomCrop(224),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(), 
                     transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -70,6 +71,7 @@ def main(args):
                                                                    batch_size=args.batch_size,
                                                                    shuffle=True,
                                                                    num_workers=0)
+
     valid_data_loader = dataloader.get_data_loader(dataset=args.dataset)(mode="val",
                                                                          transform=val_transform,
                                                                          vocab=vocab,
@@ -78,22 +80,24 @@ def main(args):
                                                                          num_workers=0)
 
     # Model
-    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=1, cnn_model=args.cnn_model).to(device)
+    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=args.num_layers,\
+                          dropout=args.dropout, cnn_model=args.cnn_model).to(device)
     
     model.summary()
     # A logger to store training process information
     logger = Logger()
 
     # Specifying loss function, metric(s), and optimizer
-    loss = nn.CrossEntropyLoss()
+    loss = nn.CrossEntropyLoss().to(device)
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.learning_rate)
+
 
     
     # An identifier (prefix) for saved model
     identifier = type(model).__name__ + '_'
 
     # Trainer instance
-    trainer = Trainer(model, loss, metrics=None,
+    trainer = Trainer(model, loss, vocab=vocab,
                       data_loader=data_loader,
                       valid_data_loader=None,
                       optimizer=optimizer,
