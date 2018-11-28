@@ -61,7 +61,7 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
 
     return out
 
-def eval(data_loader, model, dictionary, loss_f, optimizer=None, test_path):
+def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
     model.eval()
     
     total_loss = 0
