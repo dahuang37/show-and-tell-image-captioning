@@ -73,14 +73,14 @@ def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
             
             # computing loss
-            # output = model(images, captions, lengths)
-            # # output = pack_padded_sequence(output, lengths, batch_first=True)[0]
-            # loss = loss_f(output, targets)
-            # total_loss += loss
-            # num_loss += 1
+            output = model(images, captions, lengths)
+            # output = pack_padded_sequence(output, lengths, batch_first=True)[0]
+            loss = loss_f(output, targets)
+            total_loss += loss
+            num_loss += 1
 
-            # inference_output = model.inference(images)
-            beam_search = model.beam_search(images, k=2)
+            inference_output = model.inference(images)
+            # beam_search = model.beam_search(images, k=2)
 
             inference_output = inference_output.cpu().data.numpy()
             sentence_output = []
@@ -129,7 +129,7 @@ def main(args):
                                                                    batch_size=args.batch_size,
                                                                    shuffle=False,
                                                                    num_workers=0)
-    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=3, cnn_model=args.cnn_model).to(device)
+    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=1, cnn_model=args.cnn_model).to(device)
     checkpoint = torch.load(args.checkpoint_path)
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
