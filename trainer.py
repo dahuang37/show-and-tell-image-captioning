@@ -96,7 +96,7 @@ class Trainer(BaseTrainer):
         eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path)
 
         avg_val_loss = eval_loss / len(self.valid_data_loader)
-        result_dict = {'val_loss': avg_val_loss, 'coco_stat': coco_stat}
+        result_dict = {'coco_stat': coco_stat}
 
         id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'
