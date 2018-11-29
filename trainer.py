@@ -97,7 +97,7 @@ class Trainer(BaseTrainer):
 
         avg_val_loss = (eval_loss / len(self.valid_data_loader)).cpu().numpy()
 
-        result_dict = {'coco_stat_{}'.format(epoch): coco_stat}
+        result_dict = {'coco_stat_{}'.format(epoch): coco_stat,'loss':avg_val_loss.tolist()}
 
         id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'

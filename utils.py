@@ -177,12 +177,12 @@ def load_save_result(epoch,mode,data,loss,filepath, filename= "/results.json",lo
         if not loss_file.exists():
             loss_list.append(loss)
         else:
-            with open(loss_path, "r") as f:
+            with open(loss_path, "rb") as f:
                 loss_list = pickle.load(f)
             loss_list.append(loss)
         # save json
         print(loss_list)
-        with open(loss_path, "w") as f:
+        with open(loss_path, "wb") as f:
             pickle.dump(loss_list, f)
 
 
@@ -207,12 +207,12 @@ def load_save_result(epoch,mode,data,loss,filepath, filename= "/results.json",lo
         if not loss_file.exists():
             loss_list[epoch] = loss
         else:
-            with open(loss_path, "r") as f:
+            with open(loss_path, "rb") as f:
                 loss_list = pickle.load(f)
             loss_list[epoch] = loss
             # save json
         print(loss_list)
-        with open(loss_path, "w") as f:
+        with open(loss_path, "wb") as f:
             pickle.dump(loss_list, f)
 
 
