@@ -194,3 +194,11 @@ def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
 
 
 
+
+def save_json(data, filepath, filename):
+    ensure_dir(filepath)
+    print(filepath)
+    filename = os.path.join(filepath, filename)
+    with open(filename, "w") as fp:
+        json.dump(data, fp)
+
