@@ -149,7 +149,7 @@ if __name__ == '__main__':
     parser.add_argument('-cp', '--checkpoint_path', type=str,
                         help='checkpoint path to be loaded')
     parser.add_argument('-b', '--batch-size', default=4, type=int,
-    #                     help='mini-batch size (default: 4)')
+                        help='mini-batch size (default: 4)')
 
     parser.add_argument('--dataset', default="mscoco", type=str,
                         help='dataset used [mscoco | flickr8k | flickr30k | sbu | pascal]')
