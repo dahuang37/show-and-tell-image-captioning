@@ -70,7 +70,7 @@ class BaseTrainer:
             'min_loss': self.min_loss,
         }
         id_filename = str(self.id) + '_/'
-        id_file_path = self.save_dir + id_filename + 'checkpoints/'
+        id_file_path = self.save_dir + '/' + id_filename + 'checkpoints/'
         ensure_dir(id_file_path)
         filename = os.path.join(id_file_path,
                                 self.identifier + 'checkpoint_epoch{:02d}_loss_{:.5f}.pth.tar'.format(epoch, loss))

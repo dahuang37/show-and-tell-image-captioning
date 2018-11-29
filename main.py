@@ -1,6 +1,5 @@
 import argparse
 import torch
-print(torch.__version__)
 import torch.optim as optim
 import torch.nn as nn
 from model.model import BaselineModel
