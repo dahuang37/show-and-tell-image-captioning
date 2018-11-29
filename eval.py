@@ -132,7 +132,7 @@ def main(args):
 
     with open(dict_path,'r') as f:
         hyper_dict = json.load(f)
-
+    test_path = ''
     if args.dataset == 'flickr8k':
         test_path = 'data/flickr8k/Flickr8k_text/captions_flickr8k_test.json'
     elif args.dataset == 'flickr30k':
@@ -149,9 +149,9 @@ def main(args):
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
 
-    eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss,test_path)
+    eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss, test_path)
     #saving rsults
-    avg_val_loss = eval_loss / len(data_loader).cpu().numpy()
+    avg_val_loss = (eval_loss / len(data_loader)).cpu().numpy()
     result_dict = {'loss': avg_val_loss, 'coco_stat': coco_stat}
 
     id_filename = str(args.id) + '_/'
@@ -160,7 +160,7 @@ def main(args):
     ensure_dir(id_file_path)
     print("Saving testing result: {} ...".format(id_file_path))
 
-    load_save_result(epoch,'test', result_dict, avg_val_loss,id_file_path,filename= "/test_results.json", lossfile= "/test_loss.pkl")
+    load_save_result(epoch,'test', result_dict, id_file_path,filename= "/test_results.json")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Show and Tell')

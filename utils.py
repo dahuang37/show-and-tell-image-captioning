@@ -154,11 +154,8 @@ def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
 
     return hyper_id
 
-def load_save_result(epoch,mode,data,loss,filepath, filename= "/results.json",lossfile = "/loss.pkl"):
+def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
     if mode == 'val':
-        loss_list = []
-        loss_path = filepath + lossfile
-        loss_file = Path(loss_path)
         result_json = []
         result_path = filepath + filename
         result_file = Path(result_path)
@@ -174,22 +171,9 @@ def load_save_result(epoch,mode,data,loss,filepath, filename= "/results.json",lo
         with open(result_path, "w") as f:
             json.dump(result_json, f)
 
-        if not loss_file.exists():
-            loss_list.append(loss)
-        else:
-            with open(loss_path, "rb") as f:
-                loss_list = pickle.load(f)
-            loss_list.append(loss)
-        # save json
-        print(loss_list)
-        with open(loss_path, "wb") as f:
-            pickle.dump(loss_list, f)
 
 
     elif mode == 'test':
-        loss_list = {}
-        loss_path = filepath + lossfile
-        loss_file = Path(loss_path)
         result_json = {}
         result_path = filepath + filename
         result_file = Path(result_path)
@@ -204,16 +188,7 @@ def load_save_result(epoch,mode,data,loss,filepath, filename= "/results.json",lo
         with open(result_path, "w") as f:
             json.dump(result_json, f)
 
-        if not loss_file.exists():
-            loss_list[epoch] = loss
-        else:
-            with open(loss_path, "rb") as f:
-                loss_list = pickle.load(f)
-            loss_list[epoch] = loss
-            # save json
-        print(loss_list)
-        with open(loss_path, "wb") as f:
-            pickle.dump(loss_list, f)
+
 
 
 

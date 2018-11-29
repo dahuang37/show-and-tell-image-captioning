@@ -103,7 +103,7 @@ class Trainer(BaseTrainer):
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'
         ensure_dir(id_file_path)
         print("Saving result: {} ...".format(id_file_path))
-        load_save_result(epoch,'val',result_dict, avg_val_loss,id_file_path)
+        load_save_result(epoch,'val',result_dict,id_file_path)
 
                 
 
