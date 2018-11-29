@@ -49,6 +49,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def main(args):
 
     hyper_id = load_save_hyper(args)
+    print("testing hyper id: ",hyper_id)
+    for key, items in vars(args).items():
+        print("Current ",key ,": ",items)
+    
 
 
 
