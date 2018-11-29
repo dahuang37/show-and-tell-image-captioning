@@ -144,8 +144,8 @@ def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
     else:
         with open(id_to_hyper_path, "r") as f:
             id_to_hyper_dict = json.load(f)
-        print(id_to_hyper_dict.keys())
-        hyper_id = max(id_to_hyper_dict.keys()) + 1
+        
+        hyper_id = max(map(int,id_to_hyper_dict.keys())) + 1
         id_to_hyper_dict[hyper_id] = vars(args)
     # save json
     with open(id_to_hyper_path, "w") as f:
