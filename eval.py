@@ -128,7 +128,7 @@ def main(args):
                                                                    batch_size=args.batch_size,
                                                                    shuffle=False,
                                                                    num_workers=0)
-    dict_path = 'model/saved/results/' + args.dataset +'id_to_hyper.json'
+    dict_path = 'model/saved/results/' + args.dataset +'/id_to_hyper.json'
 
     with open(dict_path,'r') as f:
         hyper_dict = json.load(f)
