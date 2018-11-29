@@ -138,7 +138,7 @@ def get_vocab():
 		vocab = pickle.load(f)
 	return vocab
 
-def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_workers=0):
+def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_workers=0,data_dir = 1):
 	""" 
 	Returns Data loader for custom coco dataset
 

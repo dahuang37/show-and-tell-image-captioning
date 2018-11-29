@@ -209,7 +209,7 @@ def get_vocab():
         vocab = pickle.load(f)
     return vocab
 
-def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_workers=0):
+def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_workers=0,data_dir = 1):
     """
 	Returns Data loader for custom coco dataset
 
@@ -225,8 +225,12 @@ def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_work
 		num_workers:thread used for dataloader [default:0]
 	"""
     assert (mode in ["train", "val", "test"])
-    root = "./data/flickr30k/flickr30k_images/"
-    annFile = "./data/flickr30k/captions_flickr30k_" + mode + ".json"
+    if data_dir == 2:
+        root = "./data/flickr30k_1/flickr30k_images/"
+        annFile = "./data/flickr30k_1/captions_flickr30k_" + mode + ".json"
+    else:
+        root = "./data/flickr30k/flickr30k_images/"
+        annFile = "./data/flickr30k/captions_flickr30k_" + mode + ".json"
 
     dataset = Flickr30kDataset(root=root,
 					  annFile=annFile,

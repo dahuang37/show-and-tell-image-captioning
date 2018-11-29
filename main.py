@@ -46,6 +46,8 @@ parser.add_argument('--dropout', default=0.3, type=float,
                     help='dropout rate after each time step')
 parser.add_argument('--eval_freq', default=1, type=float,
                     help='run the validation test after every freq epoch')
+parser.add_argument('--data_dir', default=1, type=float,
+                    help='run the validation test after every freq epoch')
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -81,14 +83,16 @@ def main(args):
                                                                    vocab=vocab,
                                                                    batch_size=args.batch_size,
                                                                    shuffle=True,
-                                                                   num_workers=4)
+                                                                   num_workers=4,
+                                                                   data_dir=args.data_dir)
 
     valid_data_loader = dataloader.get_data_loader(dataset=args.dataset)(mode="val",
                                                                          transform=val_transform,
                                                                          vocab=vocab,
                                                                          batch_size=args.batch_size,
                                                                          shuffle=False,
-                                                                         num_workers=4)
+                                                                         num_workers=4,
+                                                                         data_dir=args.data_dir)
 
     # Model
     args_dict = vars(args)
