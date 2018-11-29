@@ -133,6 +133,7 @@ def main(args):
     with open(dict_path,'r') as f:
         hyper_dict = json.load(f)
     test_path = ''
+    
     if args.dataset == 'flickr8k':
         test_path = 'data/flickr8k/Flickr8k_text/captions_flickr8k_test.json'
     elif args.dataset == 'flickr30k':

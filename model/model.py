@@ -7,7 +7,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 
 class BaselineModel(BaseModel):
-
+    ''' Arguments are saved in a dictionary so that hyper-parameter can be re-used during testing '''
     def __init__(self, dictionary):
         super(BaselineModel, self).__init__()
         resnet = getattr(models, dictionary['cnn_model'])(pretrained=True)
@@ -20,7 +20,7 @@ class BaselineModel(BaseModel):
         self.bn = nn.BatchNorm1d(dictionary['embed_size'])
 
         self.embedding = nn.Embedding(dictionary['vocab_size'],dictionary['embed_size'])
-        self.rnn = nn.LSTM(dictionary['embed_size'], dictionary['hidden_size'], dictionary['num_layers'], batch_first=True)
+        self.rnn = getattr(nn, dictionary['rnn_model'])(dictionary['embed_size'], dictionary['hidden_size'], dictionary['num_layers'], batch_first=True)
         self.dropout = nn.Dropout(dictionary['dropout'])
         self.decoder_linear = nn.Linear(dictionary['hidden_size'], dictionary['vocab_size'])
 

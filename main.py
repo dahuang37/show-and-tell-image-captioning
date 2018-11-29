@@ -38,6 +38,9 @@ parser.add_argument('--hidden_size', default=512, type=int,
                     help='dimension for lstm hidden layer')
 parser.add_argument('--cnn_model', default="resnet152", type=str,
                     help='pretrained cnn model used')
+parser.add_argument('--rnn_model', default="LSTM", type=str,
+                    help='used[ LSTM | GRU')
+
 parser.add_argument('--num_layers', default=3, type=int,
                     help='number of layers for lstm')
 parser.add_argument('--dropout', default=0.3, type=float,
