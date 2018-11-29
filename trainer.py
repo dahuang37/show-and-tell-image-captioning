@@ -96,16 +96,14 @@ class Trainer(BaseTrainer):
         eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path)
 
         avg_val_loss = (eval_loss / len(self.valid_data_loader)).cpu().numpy()
-        loss_list = []
-        print(avg_val_loss)
-        print("type",type(avg_val_loss))
-        result_dict = {'loss': loss_list.append(avg_val_loss.to_list()),'coco_stat_{}'.format(epoch): coco_stat}
+
+        result_dict = {'coco_stat_{}'.format(epoch): coco_stat}
 
         id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'
         ensure_dir(id_file_path)
         print("Saving result: {} ...".format(id_file_path))
-        load_save_result(epoch,'val',result_dict,id_file_path)
+        load_save_result(epoch,'val',result_dict, avg_val_loss,id_file_path)
 
                 
 

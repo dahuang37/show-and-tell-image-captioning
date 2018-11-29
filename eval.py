@@ -152,7 +152,6 @@ def main(args):
     eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss,test_path)
     #saving rsults
     avg_val_loss = eval_loss / len(data_loader).cpu().numpy()
-    print(avg_val_loss)
     result_dict = {'loss': avg_val_loss, 'coco_stat': coco_stat}
 
     id_filename = str(args.id) + '_/'
@@ -161,7 +160,7 @@ def main(args):
     ensure_dir(id_file_path)
     print("Saving testing result: {} ...".format(id_file_path))
 
-    load_save_result(epoch,'test', result_dict, id_file_path,filename= "/test_results.json")
+    load_save_result(epoch,'test', result_dict, avg_val_loss,id_file_path,filename= "/test_results.json", lossfile= "/test_loss.pkl")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Show and Tell')
