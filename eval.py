@@ -128,7 +128,10 @@ def main(args):
                                                                    batch_size=args.batch_size,
                                                                    shuffle=False,
                                                                    num_workers=0)
-    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab),  num_layers=1, cnn_model=args.cnn_model).to(device)
+
+    args_dict = vars(args)
+    args_dict['vocab_size'] = len(vocab)
+    model = BaselineModel(args_dict).to(device)
     checkpoint = torch.load(args.checkpoint_path)
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()

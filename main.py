@@ -87,8 +87,9 @@ def main(args):
                                                                          num_workers=4)
 
     # Model
-
-    model = BaselineModel(vars(args)).to(device)
+    args_dict = vars(args)
+    args_dict['vocab_size'] = len(vocab)
+    model = BaselineModel(args_dict).to(device)
     
     model.summary()
     # A logger to store training process information
