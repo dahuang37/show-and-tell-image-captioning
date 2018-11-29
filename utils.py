@@ -150,7 +150,7 @@ def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
         id_to_hyper_dict[hyper_id] = vars(args)
     # save json
     with open(id_to_hyper_path, "w") as f:
-        json.dump(id_to_hyper_dict, f)
+        json.dump(id_to_hyper_dict, f, indent = 4, separators = (',', ': '))
 
     return hyper_id
 
@@ -169,7 +169,7 @@ def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
             result_json.append(data)
         # save json
         with open(result_path, "w") as f:
-            json.dump(result_json, f)
+            json.dump(result_json, f, indent = 4, separators = (',', ': '))
 
     elif mode == 'test':
         result_json = {}
@@ -184,7 +184,7 @@ def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
             result_json[epoch] = data
         # save json
         with open(result_path, "w") as f:
-            json.dump(result_json, f)
+            json.dump(result_json, f, indent = 4, separators = (',', ': '))
 
 
 
