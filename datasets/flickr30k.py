@@ -4,7 +4,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import torchvision
 from torchvision import transforms
-from PIL import Image
+from PIL import Image,ImageFile
 from pycocotools.coco import COCO
 import nltk
 from .build_vocab import Vocabulary
@@ -45,7 +45,7 @@ class Flickr30kDataset(Dataset):
         ann_id = self.ids[index]
         caption = coco.anns[ann_id]['caption']
         img_id = coco.anns[ann_id]['image_id']
-
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
         image = Image.open(os.path.join(self.root, img_id)).convert('RGB')
         if self.transform is not None:
             image = self.transform(image)

@@ -102,7 +102,7 @@ def main(args):
     # Trainer instance
     trainer = Trainer(model, loss, vocab=vocab,
                       data_loader=data_loader,
-                      valid_data_loader=None,
+                      valid_data_loader=valid_data_loader,
                       optimizer=optimizer,
                       epochs=args.epochs,
                       logger=logger,
