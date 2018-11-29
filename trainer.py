@@ -95,8 +95,10 @@ class Trainer(BaseTrainer):
             test_path =  'data/coco/annotations/captions_val2014_reserved.json'
         eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path)
 
-        avg_val_loss = eval_loss / len(self.valid_data_loader)
-        result_dict = {'coco_stat': coco_stat}
+        avg_val_loss = eval_loss / len(self.valid_data_loader).cpu().numpy()
+
+        print(avg_val_loss)
+        result_dict = {'loss': avg_val_loss,'coco_stat': coco_stat}
 
         id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'
