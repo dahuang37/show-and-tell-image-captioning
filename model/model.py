@@ -8,21 +8,21 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 class BaselineModel(BaseModel):
 
-    def __init__(self, **kwargs):
+    def __init__(self, dictionary):
         super(BaselineModel, self).__init__()
-        resnet = getattr(models, kwargs['cnn_model'])(pretrained=True)
+        resnet = getattr(models, dictionary['cnn_model'])(pretrained=True)
         # remove the last fc layer
         self.resnet = nn.Sequential(*list(resnet.children())[:-1])
         for param in self.resnet.parameters():
             param.requires_grad = False
 
-        self.encoder_linear = nn.Linear(resnet.fc.in_features, kwargs['embed_size'])
-        self.bn = nn.BatchNorm1d(kwargs['embed_size'])
+        self.encoder_linear = nn.Linear(resnet.fc.in_features, dictionary['embed_size'])
+        self.bn = nn.BatchNorm1d(dictionary['embed_size'])
 
-        self.embedding = nn.Embedding(kwargs['vocab_size'],kwargs['embed_size'])
-        self.rnn = nn.LSTM(kwargs['embed_size'], kwargs['hidden_size'], kwargs['num_layers'], batch_first=True)
-        self.dropout = nn.Dropout(kwargs['dropout'])
-        self.decoder_linear = nn.Linear(kwargs['hidden_size'], kwargs['vocab_size'])
+        self.embedding = nn.Embedding(dictionary['vocab_size'],dictionary['embed_size'])
+        self.rnn = nn.LSTM(dictionary['embed_size'], dictionary['hidden_size'], dictionary['num_layers'], batch_first=True)
+        self.dropout = nn.Dropout(dictionary['dropout'])
+        self.decoder_linear = nn.Linear(dictionary['hidden_size'], dictionary['vocab_size'])
 
     def forward(self, images, captions, lengths):
         ''' Extract features from input '''
