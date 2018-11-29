@@ -52,7 +52,7 @@ def main(args):
     print("testing hyper id: ",hyper_id)
     for key, items in vars(args).items():
         print("Current ",key ,": ",items)
-    
+
 
 
 
@@ -87,8 +87,8 @@ def main(args):
                                                                          num_workers=4)
 
     # Model
-    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=args.num_layers,
-                          dropout=args.dropout, cnn_model=args.cnn_model).to(device)
+
+    model = BaselineModel(vars(args)).to(device)
     
     model.summary()
     # A logger to store training process information

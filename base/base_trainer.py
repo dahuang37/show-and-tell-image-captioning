@@ -54,7 +54,7 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         raise NotImplementedError
 
-    def _valid_epoch(self):
+    def _valid_epoch(self, epoch):
         raise NotImplementedError
 
     def _save_checkpoint(self, epoch, loss):
