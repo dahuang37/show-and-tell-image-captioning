@@ -98,6 +98,7 @@ class Trainer(BaseTrainer):
         avg_val_loss = (eval_loss / len(self.valid_data_loader)).cpu().numpy()
 
         print(avg_val_loss)
+        print("type",type(avg_val_loss))
         result_dict = {'loss': avg_val_loss,'coco_stat': coco_stat}
 
         id_filename = str(self.id) + '_/'
