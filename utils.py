@@ -153,20 +153,36 @@ def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
 
     return hyper_id
 
-def load_save_result(epoch,data,filepath, filename= "/results.json"):
-    result_json = []
-    result_path = filepath + filename
-    result_file = Path(result_path)
-    # load hyper dict
-    if not result_file.exists():
-        result_json.append(data)
-    else:
-        with open(result_path, "r") as f:
-            result_json = json.load(f)
-        result_json.append(data)
-    # save json
-    with open(result_path, "w") as f:
-        json.dump(result_json, f)
+def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
+    if mode == 'val':
+        result_json = []
+        result_path = filepath + filename
+        result_file = Path(result_path)
+        # load hyper dict
+        if not result_file.exists():
+            result_json.append(data)
+        else:
+            with open(result_path, "r") as f:
+                result_json = json.load(f)
+            result_json.append(data)
+        # save json
+        with open(result_path, "w") as f:
+            json.dump(result_json, f)
+    elif mode == 'test':
+        result_json = {}
+        result_path = filepath + filename
+        result_file = Path(result_path)
+        # load hyper dict
+        if not result_file.exists():
+            result_json[epoch] = data
+        else:
+            with open(result_path, "r") as f:
+                result_json = json.load(f)
+            result_json[epoch] = data
+        # save json
+        with open(result_path, "w") as f:
+            json.dump(result_json, f)
+
 
 
 
