@@ -88,7 +88,7 @@ def main(args):
 
     # Model
 
-    model = BaselineModel(vars(args)).to(device)
+    model = BaselineModel(args).to(device)
     
     model.summary()
     # A logger to store training process information
