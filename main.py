@@ -40,11 +40,12 @@ parser.add_argument('--cnn_model', default="resnet152", type=str,
                     help='pretrained cnn model used')
 parser.add_argument('--rnn_model', default="LSTM", type=str,
                     help='used[ LSTM | GRU')
-
 parser.add_argument('--num_layers', default=3, type=int,
                     help='number of layers for lstm')
 parser.add_argument('--dropout', default=0.3, type=float,
                     help='dropout rate after each time step')
+parser.add_argument('--eval_freq', default=1, type=float,
+                    help='run the validation test after every freq epoch')
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -116,6 +117,7 @@ def main(args):
                       logger=logger,
                       save_dir=args.save_dir,
                       save_freq=args.save_freq,
+                      eval_freq=args.eval_freq,
                       resume=args.resume,
                       verbosity=args.verbosity,
                       identifier=identifier,

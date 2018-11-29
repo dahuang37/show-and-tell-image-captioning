@@ -17,10 +17,10 @@ class Trainer(BaseTrainer):
         Modify __init__() if you have additional arguments to pass.
     """
     def __init__(self, model, loss, vocab, data_loader, optimizer, epochs,
-                 save_dir, save_freq, resume, verbosity, id, dataset, identifier='',
+                 save_dir, save_freq, eval_freq, resume, verbosity, id, dataset, identifier='',
                  valid_data_loader=None, logger=None):
         super(Trainer, self).__init__(model, loss, vocab, optimizer, epochs,
-                                      save_dir, save_freq, resume, verbosity, id, dataset, identifier, logger)
+                                      save_dir, save_freq, eval_freq, resume, verbosity, id, dataset, identifier, logger)
         self.batch_size = data_loader.batch_size
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
@@ -69,7 +69,7 @@ class Trainer(BaseTrainer):
         avg_loss = total_loss / len(self.data_loader)
         log = {'loss': avg_loss}
 
-        if self.valid:
+        if self.valid and epoch % self.eval_freq == 0:
             val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
 

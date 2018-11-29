@@ -171,8 +171,6 @@ def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
         with open(result_path, "w") as f:
             json.dump(result_json, f)
 
-
-
     elif mode == 'test':
         result_json = {}
         result_path = filepath + filename

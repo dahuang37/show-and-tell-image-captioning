@@ -12,7 +12,7 @@ class BaseTrainer:
         Modify if you need to change logging style, checkpoint naming, or something else.
     """
     def __init__(self, model, loss, vocab, optimizer, epochs,
-                 save_dir, save_freq, resume, verbosity, id, dataset, identifier='', logger=None):
+                 save_dir, save_freq, eval_freq, resume, verbosity, id, dataset, identifier='', logger=None):
         self.model = model
         self.loss = loss
         self.optimizer = optimizer
@@ -27,6 +27,7 @@ class BaseTrainer:
         self.start_epoch = 1
         self.dataset = dataset
         self.id = id
+        self.eval_freq = eval_freq
         ensure_dir(save_dir)
         if resume:
             self._resume_checkpoint(resume)
