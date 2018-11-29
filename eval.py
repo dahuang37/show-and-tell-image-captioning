@@ -128,8 +128,12 @@ def main(args):
                                                                    batch_size=args.batch_size,
                                                                    shuffle=False,
                                                                    num_workers=0)
+    dict_path = 'model/saved/results/' + args.dataset +'id_to_hyper.json'
 
-    args_dict = vars(args)
+    args_dict = {}
+    with open(dict_path,'r') as f:
+        args_dict = json.load(f)
+
     args_dict['vocab_size'] = len(vocab)
     model = BaselineModel(args_dict).to(device)
     checkpoint = torch.load(args.checkpoint_path)
@@ -143,20 +147,23 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Show and Tell')
     parser.add_argument('-cp', '--checkpoint_path', type=str,
                         help='checkpoint path to be loaded')
-    parser.add_argument('-b', '--batch-size', default=4, type=int,
-                        help='mini-batch size (default: 4)')
-    
+    # parser.add_argument('-b', '--batch-size', default=4, type=int,
+    #                     help='mini-batch size (default: 4)')
+
     parser.add_argument('--dataset', default="mscoco", type=str,
                         help='dataset used [mscoco | flickr8k | flickr30k | sbu | pascal]')
 
-    parser.add_argument('--embed_size', default=512, type=int,
-                        help='dimension for word embedding vector')
-    parser.add_argument('--hidden_size', default=512, type=int,
-                        help='dimension for lstm hidden layer')
-    parser.add_argument('--cnn_model', default="resnet152", type=str,
-                        help='pretrained cnn model used')
+    # parser.add_argument('--embed_size', default=512, type=int,
+    #                     help='dimension for word embedding vector')
+    # parser.add_argument('--hidden_size', default=512, type=int,
+    #                     help='dimension for lstm hidden layer')
+    # parser.add_argument('--cnn_model', default="resnet152", type=str,
+    #                     help='pretrained cnn model used')
 
     parser.add_argument('--test_path', default="data/flickr8k/Flickr8k_text/captions_flickr8k_test.json", type=str,
+                        help='pretrained cnn model used')
+
+    parser.add_argument('--id', default="1", type=str,
                         help='pretrained cnn model used')
 
     main(parser.parse_args())
