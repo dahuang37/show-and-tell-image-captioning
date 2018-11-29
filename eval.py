@@ -130,9 +130,10 @@ def main(args):
                                                                    num_workers=0)
     dict_path = 'model/saved/results/' + args.dataset +'id_to_hyper.json'
 
-    args_dict = {}
     with open(dict_path,'r') as f:
-        args_dict = json.load(f)
+        hyper_dict = json.load(f)
+
+    args_dict = hyper_dict[args.id]
 
     args_dict['vocab_size'] = len(vocab)
     model = BaselineModel(args_dict).to(device)
