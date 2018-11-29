@@ -131,7 +131,7 @@ def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
     args.save_dir = os.path.join(args.save_dir, args.dataset)
     ensure_dir(args.save_dir)
     # find ids for current hyper
-    hyper_id = 0
+    hyper_id = 1
     id_to_hyper_path = args.save_dir + id_to_hyper_filename
     id_to_hyper_file = Path(id_to_hyper_path)
     id_to_hyper_dict = {}
