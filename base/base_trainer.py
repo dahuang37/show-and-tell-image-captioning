@@ -15,7 +15,6 @@ class BaseTrainer:
                  save_dir, save_freq, resume, verbosity, id, dataset, identifier='', logger=None):
         self.model = model
         self.loss = loss
-        self.metrics = metrics
         self.optimizer = optimizer
         self.epochs = epochs
         self.min_loss = math.inf
@@ -35,20 +34,20 @@ class BaseTrainer:
     def train(self):
         for epoch in range(self.start_epoch, self.epochs+1):
             result = self._train_epoch(epoch)
-            if self.logger:
-                log = {'epoch': epoch}
-                for key, value in result.items():
-                    if key == 'metrics':
-                        for i, metric in enumerate(self.metrics):
-                            log[metric.__name__] = result['metrics'][i]
-                    elif key == 'val_metrics':
-                        for i, metric in enumerate(self.metrics):
-                            log['val_'+metric.__name__] = result['val_metrics'][i]
-                    else:
-                        log[key] = value
-                self.logger.add_entry(log)
-                if self.verbosity >= 1:
-                    print(log)
+            # if self.logger:
+            #     log = {'epoch': epoch}
+            #     for key, value in result.items():
+            #         if key == 'metrics':
+            #             for i, metric in enumerate(self.metrics):
+            #                 log[metric.__name__] = result['metrics'][i]
+            #         elif key == 'val_metrics':
+            #             for i, metric in enumerate(self.metrics):
+            #                 log['val_'+metric.__name__] = result['val_metrics'][i]
+            #         else:
+            #             log[key] = value
+            #     self.logger.add_entry(log)
+            #     if self.verbosity >= 1:
+            #         print(log)
             if epoch % self.save_freq == 0:
                 self._save_checkpoint(epoch, result['loss'])
 
