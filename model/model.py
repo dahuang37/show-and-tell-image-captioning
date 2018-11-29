@@ -8,7 +8,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 class BaselineModel(BaseModel):
 
-    def __init__(self, embed_size, hidden_size, vocab_size, num_layers=1, cnn_model="resnet18"):
+    def __init__(self, embed_size, hidden_size, vocab_size, dropout, num_layers=1, cnn_model="resnet18"):
         super(BaselineModel, self).__init__()
         resnet = getattr(models, cnn_model)(pretrained=True)
         # remove the last fc layer
@@ -21,6 +21,7 @@ class BaselineModel(BaseModel):
 
         self.embedding = nn.Embedding(vocab_size, embed_size)
         self.rnn = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
+        self.dropout = nn.Dropout(dropout)
         self.decoder_linear = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, images, captions, lengths):
@@ -40,8 +41,8 @@ class BaselineModel(BaseModel):
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
         
         hiddens, _ = self.rnn(packed)
-        
-        outputs = self.decoder_linear(hiddens[0])
+        outputs = self.dropout(hiddens[0])
+        outputs = self.decoder_linear(outputs)
 
         return outputs
 

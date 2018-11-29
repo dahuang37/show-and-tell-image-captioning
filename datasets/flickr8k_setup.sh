@@ -5,4 +5,4 @@ python flickr8k.py
 
 # create custom valid and test data
 echo "Building vocab for flickr8k"
-python build_vocab.py --json ../data/flickr8k/Flickr8k_text/buildvocab.json --file_path ../data/flickr8k/Flickr8k_text/vocab.pkl
+python build_vocab.py --json ./data/flickr8k/Flickr8k_text/buildvocab.json --file_path ./data/flickr8k/Flickr8k_text/vocab.pkl

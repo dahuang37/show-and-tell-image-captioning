@@ -56,12 +56,12 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
     out = {}
     for metric, score in cocoEval.eval.items():
         out[metric] = score
-
+    result_path = 'data/'
     return out
 
 def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
     model.eval()
-    
+
     total_loss = 0
     start_time = time.time()
     num_loss = 0

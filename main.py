@@ -13,6 +13,7 @@ from torchvision import transforms
 from utils import *
 
 
+
 parser = argparse.ArgumentParser(description='Show and Tell')
 parser.add_argument('-lr', '--learning_rate', default=0.001, type=float,
                     help='learning rate for the model')
@@ -24,7 +25,7 @@ parser.add_argument('--resume', default='', type=str,
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--verbosity', default=2, type=int,
                     help='verbosity, 0: quiet, 1: per epoch, 2: complete (default: 2)')
-parser.add_argument('--save-dir', default='model/saved', type=str,
+parser.add_argument('--save-dir', default='model/saved/results', type=str,
                     help='directory of saved model (default: model/saved)')
 parser.add_argument('--save-freq', default=1, type=int,
                     help='training checkpoint frequency (default: 1)')
@@ -46,8 +47,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def main(args):
-    args.save_dir = os.path.join(args.save_dir, args.dataset)
-    save_json(vars(args), args.save_dir, "hyper.json")
+
+    hyper_id = load_save_hyper(args)
+
+
 
     # transform
     train_transform = transforms.Compose([
@@ -80,7 +83,7 @@ def main(args):
                                                                          num_workers=0)
 
     # Model
-    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=args.num_layers,\
+    model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=args.num_layers,
                           dropout=args.dropout, cnn_model=args.cnn_model).to(device)
     
     model.summary()
@@ -108,6 +111,8 @@ def main(args):
                       resume=args.resume,
                       verbosity=args.verbosity,
                       identifier=identifier,
+                      id = hyper_id,
+                      dataset = args.dataset
                       )
 
     # # Start training!

@@ -11,22 +11,23 @@ class BaseTrainer:
     Note:
         Modify if you need to change logging style, checkpoint naming, or something else.
     """
-    def __init__(self, model, loss, metrics, optimizer, epochs,
-                 save_dir, save_freq, resume, verbosity, identifier='', logger=None):
+    def __init__(self, model, loss, vocab, metrics, optimizer, epochs,
+                 save_dir, save_freq, resume, verbosity, id, dataset, identifier='', logger=None):
         self.model = model
         self.loss = loss
         self.metrics = metrics
         self.optimizer = optimizer
         self.epochs = epochs
         self.min_loss = math.inf
-        
+        self.vocab = vocab
         self.save_dir = save_dir
         self.save_freq = save_freq
         self.verbosity = verbosity
         self.identifier = identifier
         self.logger = logger
         self.start_epoch = 1
-
+        self.dataset = dataset
+        self.id = id
         ensure_dir(save_dir)
         if resume:
             self._resume_checkpoint(resume)
@@ -69,7 +70,10 @@ class BaseTrainer:
             'optimizer': self.optimizer.state_dict(),
             'min_loss': self.min_loss,
         }
-        filename = os.path.join(self.save_dir,
+        id_filename = self.id + '_/'
+        id_file_path = self.save_dir + id_filename + 'checkpoints/'
+        ensure_dir(id_file_path)
+        filename = os.path.join(id_file_path,
                                 self.identifier + 'checkpoint_epoch{:02d}_loss_{:.5f}.pth.tar'.format(epoch, loss))
         print("Saving checkpoint: {} ...".format(filename))
         torch.save(state, filename)

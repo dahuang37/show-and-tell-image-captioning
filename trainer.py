@@ -1,9 +1,12 @@
 import numpy as np
+from eval import *
 import torch
 from base.base_trainer import BaseTrainer
 from torch.nn.utils.rnn import pack_padded_sequence
 from utils import *
 import time
+import torch.nn as nn
+
 
 
 class Trainer(BaseTrainer):
@@ -13,11 +16,11 @@ class Trainer(BaseTrainer):
         Inherited from BaseTrainer.
         Modify __init__() if you have additional arguments to pass.
     """
-    def __init__(self, model, loss, metrics, data_loader, optimizer, epochs,
-                 save_dir, save_freq, resume, verbosity, identifier='',
+    def __init__(self, model, loss, vocab, metrics, data_loader, optimizer, epochs,
+                 save_dir, save_freq, resume, verbosity, id, dataset, identifier='',
                  valid_data_loader=None, logger=None):
-        super(Trainer, self).__init__(model, loss, metrics, optimizer, epochs,
-                                      save_dir, save_freq, resume, verbosity, identifier, logger)
+        super(Trainer, self).__init__(model, loss, metrics, vocab, optimizer, epochs,
+                                      save_dir, save_freq, resume, verbosity, id, dataset, identifier, logger)
         self.batch_size = data_loader.batch_size
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
@@ -67,12 +70,12 @@ class Trainer(BaseTrainer):
         log = {'loss': avg_loss}
 
         if self.valid:
-            val_log = self._valid_epoch()
+            val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
 
         return log
 
-    def _valid_epoch(self):
+    def _valid_epoch(self,epoch):
         """ Validate after training an epoch
 
         :return: A log that contains information about validation
@@ -82,21 +85,25 @@ class Trainer(BaseTrainer):
         """
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = self.model
-        model.eval()
-        
-        total_val_loss = 0
-        # total_val_metrics = np.zeros(len(self.metrics))
-        with torch.no_grad():
-            for batch_idx, (images, captions, lengths, _) in enumerate(self.valid_data_loader):
+        loss = nn.CrossEntropyLoss()
+        test_path = ''
+        if self.dataset == "flickr30k":
+            test_path = 'data/flickr30k/captions_flickr30k_test.json'
+        elif self.dataset == "flickr8k":
+            test_path = 'data/flickr8k/Flickr8k_text/captions_flickr8k_test.json'
+        elif self.dataset == "mscoco":
+            test_path =  'data/coco/annotations/captions_val2014_reserved.json'
+        eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path, self.dataset)
 
-                images, captions = images.to(device), captions.to(device)
+        avg_val_loss = eval_loss / len(self.valid_data_loader)
+        result_dict = {'val_loss': avg_val_loss, 'coco_stat': coco_stat}
 
-                output = model(images, captions, lengths)
-                targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
-                loss = self.loss(output, targets)
-                total_val_loss += loss.item()
-                progress_bar(batch_idx, len(self.valid_data_loader))
+        id_filename = self.id + '_/'
+        id_file_path = self.save_dir + id_filename + 'results/'
+        ensure_dir(id_file_path)
+        print("Saving result: {} ...".format(id_file_path))
+        load_save_result(epoch,result_dict,id_file_path)
 
                 
-        avg_val_loss = total_val_loss / len(self.valid_data_loader)
+
         return {'val_loss': avg_val_loss}

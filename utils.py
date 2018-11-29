@@ -6,6 +6,8 @@ import numpy as np
 #import matplotlib
 #import matplotlib.pyplot as plt
 import json
+from pathlib import Path
+import functools
 
 _, term_width = os.popen('stty size', 'r').read().split()
 term_width = int(term_width)
@@ -122,3 +124,50 @@ class Early_stopping(object):
 def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
+    args.save_dir = os.path.join(args.save_dir, args.dataset)
+    ensure_dir(args.save_dir)
+    # find ids for current hyper
+    hyper_id = 0
+    id_to_hyper_path = args.save_dir + id_to_hyper_filename
+    id_to_hyper_file = Path(id_to_hyper_path)
+    id_to_hyper_dict = {}
+
+    id_list = [dI.split("_")[0] for dI in os.listdir(args.save_dir) if os.path.isdir(os.path.join(args.save_dir, dI))]
+    if len(id_list) != 0:
+        hyper_id = functools.reduce(id_list, max) + 1
+    # load hyper dict
+    if not id_to_hyper_file.exists():
+        id_to_hyper_dict[hyper_id] = vars(args)
+    else:
+        with open(id_to_hyper_path, "r") as f:
+            id_to_hyper_dict = json.load(f)
+        id_to_hyper_dict[hyper_id] = vars(args)
+    # save json
+    with open(id_to_hyper_path, "w") as f:
+        json.dump(id_to_hyper_dict, f)
+
+    return hyper_id
+
+def load_save_result(epoch,data,filepath, filename= "/results.json"):
+    result_json = {}
+    result_path = filepath + filename
+    result_file = Path(result_path)
+    # load hyper dict
+    if not result_file.exists():
+        result_json[epoch] = data
+    else:
+        with open(result_path, "r") as f:
+            result_json = json.load(f)
+        result_json[epoch] = data
+    # save json
+    with open(result_path, "w") as f:
+        json.dump(result_json, f)
+
+
+
+
+
+
