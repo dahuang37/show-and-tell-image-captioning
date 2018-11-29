@@ -73,14 +73,14 @@ def main(args):
                                                                    vocab=vocab,
                                                                    batch_size=args.batch_size,
                                                                    shuffle=True,
-                                                                   num_workers=0)
+                                                                   num_workers=4)
 
     valid_data_loader = dataloader.get_data_loader(dataset=args.dataset)(mode="val",
                                                                          transform=val_transform,
                                                                          vocab=vocab,
                                                                          batch_size=args.batch_size,
                                                                          shuffle=False,
-                                                                         num_workers=0)
+                                                                         num_workers=4)
 
     # Model
     model = BaselineModel(args.embed_size, args.hidden_size, len(vocab), num_layers=args.num_layers,

@@ -88,12 +88,12 @@ class Trainer(BaseTrainer):
         loss = nn.CrossEntropyLoss()
         test_path = ''
         if self.dataset == "flickr30k":
-            test_path = 'data/flickr30k/captions_flickr30k_test.json'
+            test_path = 'data/flickr30k/captions_flickr30k_val.json'
         elif self.dataset == "flickr8k":
-            test_path = 'data/flickr8k/Flickr8k_text/captions_flickr8k_test.json'
+            test_path = 'data/flickr8k/Flickr8k_text/captions_flickr8k_val.json'
         elif self.dataset == "mscoco":
             test_path =  'data/coco/annotations/captions_val2014_reserved.json'
-        eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path, self.dataset)
+        eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path)
 
         avg_val_loss = eval_loss / len(self.valid_data_loader)
         result_dict = {'val_loss': avg_val_loss, 'coco_stat': coco_stat}
