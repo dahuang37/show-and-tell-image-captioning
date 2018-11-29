@@ -164,7 +164,7 @@ if __name__ == '__main__':
     parser.add_argument('--test_path', default="data/flickr8k/Flickr8k_text/captions_flickr8k_test.json", type=str,
                         help='pretrained cnn model used')
 
-    parser.add_argument('--id', default="1", type=str,
+    parser.add_argument('-id', default="1", type=str,
                         help='pretrained cnn model used')
 
     main(parser.parse_args())
