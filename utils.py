@@ -135,9 +135,9 @@ def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
     id_to_hyper_file = Path(id_to_hyper_path)
     id_to_hyper_dict = {}
 
-    id_list = [dI.split("_")[0] for dI in os.listdir(args.save_dir) if os.path.isdir(os.path.join(args.save_dir, dI))]
+    id_list = [int(dI.split("_")[0]) for dI in os.listdir(args.save_dir) if os.path.isdir(os.path.join(args.save_dir, dI))]
     if len(id_list) != 0:
-        hyper_id = functools.reduce(id_list, max) + 1
+        hyper_id = max(id_list) + 1
     # load hyper dict
     if not id_to_hyper_file.exists():
         id_to_hyper_dict[hyper_id] = vars(args)
