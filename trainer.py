@@ -16,10 +16,10 @@ class Trainer(BaseTrainer):
         Inherited from BaseTrainer.
         Modify __init__() if you have additional arguments to pass.
     """
-    def __init__(self, model, loss, vocab, metrics, data_loader, optimizer, epochs,
+    def __init__(self, model, loss, vocab, data_loader, optimizer, epochs,
                  save_dir, save_freq, resume, verbosity, id, dataset, identifier='',
                  valid_data_loader=None, logger=None):
-        super(Trainer, self).__init__(model, loss, metrics, vocab, optimizer, epochs,
+        super(Trainer, self).__init__(model, loss, vocab, optimizer, epochs,
                                       save_dir, save_freq, resume, verbosity, id, dataset, identifier, logger)
         self.batch_size = data_loader.batch_size
         self.data_loader = data_loader

@@ -11,7 +11,7 @@ class BaseTrainer:
     Note:
         Modify if you need to change logging style, checkpoint naming, or something else.
     """
-    def __init__(self, model, loss, vocab, metrics, optimizer, epochs,
+    def __init__(self, model, loss, vocab, optimizer, epochs,
                  save_dir, save_freq, resume, verbosity, id, dataset, identifier='', logger=None):
         self.model = model
         self.loss = loss
