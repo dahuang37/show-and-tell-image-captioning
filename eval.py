@@ -133,6 +133,13 @@ def main(args):
     with open(dict_path,'r') as f:
         hyper_dict = json.load(f)
 
+    if args.dataset == 'flickr8k':
+        test_path = 'data/flickr8k/Flickr8k_text/captions_flickr8k_test.json'
+    elif args.dataset == 'flickr30k':
+        test_path = 'data/flickr30k/captions_flickr30k_test.json'
+    elif args.dataset == 'mscoco':
+        test_path = 'data/coco/annotations/captions_test2014_reserved.json'
+
     args_dict = hyper_dict[args.id]
 
     args_dict['vocab_size'] = len(vocab)
@@ -141,7 +148,7 @@ def main(args):
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
 
-    eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss,args.test_path)
+    eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss,test_path)
 
 
 if __name__ == '__main__':
@@ -161,8 +168,8 @@ if __name__ == '__main__':
     # parser.add_argument('--cnn_model', default="resnet152", type=str,
     #                     help='pretrained cnn model used')
 
-    parser.add_argument('--test_path', default="data/flickr8k/Flickr8k_text/captions_flickr8k_test.json", type=str,
-                        help='pretrained cnn model used')
+    # parser.add_argument('--test_path', default="data/flickr8k/Flickr8k_text/captions_flickr8k_test.json", type=str,
+    #                     help='pretrained cnn model used')
 
     parser.add_argument('-id', default="1", type=str,
                         help='pretrained cnn model used')
