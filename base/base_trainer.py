@@ -69,7 +69,7 @@ class BaseTrainer:
             'optimizer': self.optimizer.state_dict(),
             'min_loss': self.min_loss,
         }
-        id_filename = self.id + '_/'
+        id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + id_filename + 'checkpoints/'
         ensure_dir(id_file_path)
         filename = os.path.join(id_file_path,

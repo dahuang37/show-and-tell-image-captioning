@@ -98,7 +98,7 @@ class Trainer(BaseTrainer):
         avg_val_loss = eval_loss / len(self.valid_data_loader)
         result_dict = {'val_loss': avg_val_loss, 'coco_stat': coco_stat}
 
-        id_filename = self.id + '_/'
+        id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + id_filename + 'results/'
         ensure_dir(id_file_path)
         print("Saving result: {} ...".format(id_file_path))
