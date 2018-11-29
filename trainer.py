@@ -99,7 +99,7 @@ class Trainer(BaseTrainer):
 
         print(avg_val_loss)
         print("type",type(avg_val_loss))
-        result_dict = {'loss': avg_val_loss,'coco_stat': coco_stat}
+        result_dict = {'loss': avg_val_loss,'coco_stat_{}'.format(epoch): coco_stat}
 
         id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'
