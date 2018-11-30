@@ -151,7 +151,7 @@ def main(args):
     model = BaselineModel(args_dict).to(device)
 
     checkpoint = torch.load(args.checkpoint_path)
-    epoch = args.checkpoint_path.split('_')[2]
+    epoch = args.checkpoint_path.split('_')[3]
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
 
