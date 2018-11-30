@@ -188,13 +188,6 @@ def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
 
 
 
-
-
-
-
-
-
-
 def save_json(data, filepath, filename):
     ensure_dir(filepath)
     print(filepath)

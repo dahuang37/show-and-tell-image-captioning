@@ -5,7 +5,7 @@ from base.base_trainer import BaseTrainer
 from torch.nn.utils.rnn import pack_padded_sequence
 from utils import *
 import time
-import torch.nn as nn
+
 
 
 
@@ -21,6 +21,7 @@ class Trainer(BaseTrainer):
                  valid_data_loader=None, logger=None):
         super(Trainer, self).__init__(model, loss, vocab, optimizer, epochs,
                                       save_dir, save_freq, eval_freq, resume, verbosity, id, dataset, identifier, logger)
+
         self.batch_size = data_loader.batch_size
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
@@ -52,8 +53,12 @@ class Trainer(BaseTrainer):
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
             
             self.optimizer.zero_grad()
-            output = model(images, captions, lengths)
-            loss = self.loss(output, targets)
+            outputs = model(images, captions, lengths)
+            # print("captions:",captions.shape)
+            outputs = pack_padded_sequence(outputs, lengths, batch_first=True)[0]
+            # print(outputs.shape)
+            # print(targets.shape)
+            loss = self.loss(outputs, targets)
             loss.backward()
             self.optimizer.step()
             
@@ -83,6 +88,7 @@ class Trainer(BaseTrainer):
         Note:
             Modify this part if you need to.
         """
+
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = self.model
         loss = nn.CrossEntropyLoss()
@@ -95,9 +101,9 @@ class Trainer(BaseTrainer):
             test_path =  'data/coco/annotations/captions_val2014_reserved.json'
         eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path)
 
-        avg_val_loss = (eval_loss / len(self.valid_data_loader)).cpu().numpy()
+        avg_val_loss = (eval_loss / len(self.valid_data_loader)).cpu().numpy().tolist()
 
-        result_dict = {'coco_stat_{}'.format(epoch): coco_stat,'loss':avg_val_loss.tolist()}
+        result_dict = {'coco_stat_{}'.format(epoch): coco_stat,'loss':avg_val_loss}
 
         id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'
@@ -108,3 +114,4 @@ class Trainer(BaseTrainer):
                 
 
         return {'val_loss': avg_val_loss}
+

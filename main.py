@@ -60,8 +60,6 @@ def main(args):
         print("Current ",key ,": ",items)
 
 
-
-
     # transform
     train_transform = transforms.Compose([
                     transforms.Resize((224, 224)),

@@ -209,9 +209,6 @@ def get_data_loader(mode, transform, vocab, batch_size=4, shuffle=True, num_work
 	Returns Data loader for custom coco dataset
 
 	Params:
-		# root:    	./data/coco/[train2014 | val2014]
-		# annFile: 	./data/coco/annotations[captions_train2014.json | captions_val2014_reserved.json
-		# 								| captions_test2014_reserved.json]
 		mode:		[train | val | test]
 		vocab:   	loaded file from ./data/coco/vocab.pkl
 		transform: 	pytorch transformer

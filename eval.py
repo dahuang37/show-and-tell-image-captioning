@@ -18,11 +18,11 @@ import argparse
 from torchvision import transforms
 import torch.nn as nn
 from model.model import BaselineModel
-
+import json
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def coco_metric(input_sentence, path_anna ,tmp_file=None):
+def coco_metric(input_sentence, path_anna,tmp_file=None):
 
 
     coco_set = COCO(path_anna)
@@ -58,7 +58,7 @@ def coco_metric(input_sentence, path_anna ,tmp_file=None):
         out[metric] = score
     return out
 
-def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
+def eval(data_loader, model, dictionary, loss_f, test_path, beam_size=5):
     model.eval()
 
     total_loss = 0
@@ -73,15 +73,15 @@ def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
             
             # computing loss
             output = model(images, captions, lengths)
-            # output = pack_padded_sequence(output, lengths, batch_first=True)[0]
             loss = loss_f(output, targets)
+            
             total_loss += loss
             num_loss += 1
 
-            inference_output = model.inference(images)
-            # beam_search = model.beam_search(images, k=2)
+            # inference_output = model.inference(images).cpu().data.numpy()
+            inference_output = [model.beam_search(images, dictionary, k=beam_size)]
 
-            inference_output = inference_output.cpu().data.numpy()
+            # inference_output = inference_output.cpu().data.numpy()
             sentence_output = []
 
             """ convert word token to word""" 
@@ -107,7 +107,9 @@ def eval(data_loader, model, dictionary, loss_f, test_path,optimizer=None):
                 predictions.append(pred)
             progress_bar(batch_id, len(data_loader))
 
-    coco_stat = coco_metric(predictions,test_path)
+
+    coco_stat = coco_metric(predictions, test_path)
+
     eval_loss = total_loss/len(data_loader)
 
     return eval_loss, coco_stat, predictions
@@ -119,7 +121,8 @@ def main(args):
                     transforms.Resize((224, 224)),
                     transforms.ToTensor(), 
                     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])])
+                                     std=[0.229, 0.224, 0.225])
+                    ])
 
     vocab = dataloader.get_vocab(dataset=args.dataset)()
     data_loader = dataloader.get_data_loader(dataset=args.dataset)(mode="test",
@@ -128,6 +131,7 @@ def main(args):
                                                                    batch_size=args.batch_size,
                                                                    shuffle=False,
                                                                    num_workers=0)
+
     dict_path = 'model/saved/results/' + args.dataset +'/id_to_hyper.json'
 
     with open(dict_path,'r') as f:
@@ -145,12 +149,14 @@ def main(args):
 
     args_dict['vocab_size'] = len(vocab)
     model = BaselineModel(args_dict).to(device)
+
     checkpoint = torch.load(args.checkpoint_path)
     epoch = args.checkpoint_path.split('_')[2]
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
 
     eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss, test_path)
+
     #saving rsults
     avg_val_loss = (eval_loss / len(data_loader)).cpu().numpy().tolist()
     result_dict = {'loss': avg_val_loss, 'coco_stat': coco_stat}
@@ -163,29 +169,16 @@ def main(args):
 
     load_save_result(epoch,'test', result_dict, id_file_path,filename= "/test_results.json")
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Show and Tell')
     parser.add_argument('-cp', '--checkpoint_path', type=str,
                         help='checkpoint path to be loaded')
     parser.add_argument('-b', '--batch-size', default=4, type=int,
                         help='mini-batch size (default: 4)')
-
     parser.add_argument('--dataset', default="mscoco", type=str,
                         help='dataset used [mscoco | flickr8k | flickr30k | sbu | pascal]')
-
-    # parser.add_argument('--embed_size', default=512, type=int,
-    #                     help='dimension for word embedding vector')
-    # parser.add_argument('--hidden_size', default=512, type=int,
-    #                     help='dimension for lstm hidden layer')
-    # parser.add_argument('--cnn_model', default="resnet152", type=str,
-    #                     help='pretrained cnn model used')
-
-    # parser.add_argument('--test_path', default="data/flickr8k/Flickr8k_text/captions_flickr8k_test.json", type=str,
-    #                     help='pretrained cnn model used')
-
     parser.add_argument('-id', default="1", type=str,
                         help='pretrained cnn model used')
-
     main(parser.parse_args())
-    # coco_metric(None, "YG7FQK")
 
