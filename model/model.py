@@ -53,7 +53,7 @@ class BaselineModel(BaseModel):
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
         
         hiddens, _ = self.rnn(packed)
-        # outputs = self.dropout(hiddens[0])
+        outputs = self.dropout(hiddens[0])
         outputs = self.decoder_linear(outputs)
 
         return outputs
