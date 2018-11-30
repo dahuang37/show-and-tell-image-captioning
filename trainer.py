@@ -55,7 +55,7 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             outputs = model(images, captions, lengths)
             # print("captions:",captions.shape)
-            outputs = pack_padded_sequence(outputs, lengths, batch_first=True)[0]
+            #outputs = pack_padded_sequence(outputs, lengths, batch_first=True)[0]
             # print(outputs.shape)
             # print(targets.shape)
             loss = self.loss(outputs, targets)
