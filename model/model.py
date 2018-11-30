@@ -12,8 +12,8 @@ class BaselineModel(BaseModel):
     ''' Arguments are saved in a dictionary so that hyper-parameter can be re-used during testing '''
     def __init__(self, dictionary):
         super(BaselineModel, self).__init__()
-        self.vocab_size = vocab_size
-        self.embed_size = embed_size
+        self.vocab_size = dictionary['vocab_size']
+        self.embed_size = dictionary['embed_size']
 
         resnet = getattr(models, dictionary['cnn_model'])(pretrained=True)
         # remove the last fc layer
