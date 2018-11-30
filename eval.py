@@ -152,7 +152,7 @@ def main(args):
 
     eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss, test_path)
     #saving rsults
-    avg_val_loss = (eval_loss / len(data_loader)).cpu().numpy()
+    avg_val_loss = (eval_loss / len(data_loader)).cpu().numpy().tolist()
     result_dict = {'loss': avg_val_loss, 'coco_stat': coco_stat}
 
     id_filename = str(args.id) + '_/'
