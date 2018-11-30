@@ -8,10 +8,8 @@ import time
 
 
 
-
 class Trainer(BaseTrainer):
     """ Trainer class
-
     Note:
         Inherited from BaseTrainer.
         Modify __init__() if you have additional arguments to pass.
@@ -54,10 +52,7 @@ class Trainer(BaseTrainer):
             
             self.optimizer.zero_grad()
             outputs = model(images, captions, lengths)
-            # print("captions:",captions.shape)
-            #outputs = pack_padded_sequence(outputs, lengths, batch_first=True)[0]
-            # print(outputs.shape)
-            # print(targets.shape)
+            
             loss = self.loss(outputs, targets)
             loss.backward()
             self.optimizer.step()
@@ -80,7 +75,7 @@ class Trainer(BaseTrainer):
 
         return log
 
-    def _valid_epoch(self,epoch):
+    def _valid_epoch(self, epoch):
         """ Validate after training an epoch
 
         :return: A log that contains information about validation
@@ -88,7 +83,6 @@ class Trainer(BaseTrainer):
         Note:
             Modify this part if you need to.
         """
-
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = self.model
         loss = nn.CrossEntropyLoss()
@@ -99,19 +93,19 @@ class Trainer(BaseTrainer):
             test_path = 'data/flickr8k/Flickr8k_text/captions_flickr8k_val.json'
         elif self.dataset == "mscoco":
             test_path =  'data/coco/annotations/captions_val2014_reserved.json'
-        eval_loss, coco_stat, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path)
-
+        
+        eval_loss, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path, beam_size=0)
+        coco_stat, _ = coco_metrics(predictions, test_path)
         avg_val_loss = (eval_loss / len(self.valid_data_loader)).cpu().numpy().tolist()
 
-        result_dict = {'coco_stat_{}'.format(epoch): coco_stat,'loss':avg_val_loss}
+        result_dict = {'coco_stat_{}'.format(epoch): coco_stat,'loss': avg_val_loss}
 
         id_filename = str(self.id) + '_/'
         id_file_path = self.save_dir + '/' + id_filename + 'metrics/'
         ensure_dir(id_file_path)
         print("Saving result: {} ...".format(id_file_path))
-        load_save_result(epoch,'val',result_dict,id_file_path)
-
+        load_save_result(epoch, 'val', result_dict, id_file_path)
                 
 
-        return {'val_loss': avg_val_loss}
+        return {'val_loss': avg_val_loss, "coco_stat": coco_stat}
 
