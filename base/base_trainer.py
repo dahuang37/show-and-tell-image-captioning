@@ -2,7 +2,7 @@ import os
 import math
 import shutil
 import torch
-from utils import ensure_dir
+from utils import ensure_dir, Early_stopping
 
 
 class BaseTrainer:
@@ -31,6 +31,9 @@ class BaseTrainer:
         ensure_dir(save_dir)
         if resume:
             self._resume_checkpoint(resume)
+        self.early_stop = Early_stopping(patience=4)
+
+
 
     def train(self):
         for epoch in range(self.start_epoch, self.epochs+1):
@@ -51,6 +54,11 @@ class BaseTrainer:
             #         print(log)
             if epoch % self.save_freq == 0:
                 self._save_checkpoint(epoch, result['loss'])
+            
+            self.early_stop.update(result["coco_stat"]["Bleu_1"])
+            if self.early_stop.stop():
+                break
+
 
     def _train_epoch(self, epoch):
         raise NotImplementedError

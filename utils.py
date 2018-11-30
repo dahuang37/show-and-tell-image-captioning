@@ -100,18 +100,15 @@ class Early_stopping(object):
     monitor on val loss
     if stop improving from the past 10 epoch, then stop
     '''
-    def __init__(self, in_use, patience=15):
-        self.in_use = in_use
+    def __init__(self, patience=15):
         self.patience = patience
         self.wait = 0
-        self.current_best = np.inf
+        self.current_best = -np.inf
         self.stopping = False
 
-    def update(self, test_loss):
-        if not self.in_use:
-            return
-        if self.current_best > test_loss:
-            self.current_best = test_loss
+    def update(self, score):
+        if self.current_best < score:
+            self.current_best = score
             self.wait = 0
         else:
             self.wait += 1
@@ -154,7 +151,7 @@ def load_save_hyper(args, id_to_hyper_filename= "/id_to_hyper.json"):
 
     return hyper_id
 
-def load_save_result(epoch,mode,data,filepath, filename= "/results.json"):
+def load_save_result(epoch, mode, data, filepath, filename= "/results.json"):
     if mode == 'val':
         result_json = []
         result_path = filepath + filename

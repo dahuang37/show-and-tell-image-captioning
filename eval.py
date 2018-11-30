@@ -22,7 +22,7 @@ import json
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def coco_metric(input_sentence, path_anna,tmp_file=None):
+def coco_metric(input_sentence, path_anna, tmp_file=None):
 
 
     coco_set = COCO(path_anna)
@@ -41,7 +41,6 @@ def coco_metric(input_sentence, path_anna,tmp_file=None):
         with open('cache/' + tmp_file + '.json', 'w') as f:
             json.dump(pred_set, f)
 
-
     result = 'cache/' + tmp_file + '.json'
     cocoRes = coco_set.loadRes(result)
     cocoEval = COCOEvalCap(coco_set, cocoRes)
@@ -50,20 +49,17 @@ def coco_metric(input_sentence, path_anna,tmp_file=None):
 
     # delete the temp file
     os.system('rm ' + 'cache/' + tmp_file + '.json')
-
-
     # create output dictionary
     out = {}
     for metric, score in cocoEval.eval.items():
         out[metric] = score
-    return out
+    return out, pred_set
 
-def eval(data_loader, model, dictionary, loss_f, test_path, beam_size=5):
+def eval(data_loader, model, dictionary, loss_f, beam_size=5):
     model.eval()
 
     total_loss = 0
     start_time = time.time()
-    num_loss = 0
     image_set = []
     predictions = []
     with torch.no_grad():
@@ -76,11 +72,12 @@ def eval(data_loader, model, dictionary, loss_f, test_path, beam_size=5):
             loss = loss_f(output, targets)
             
             total_loss += loss
-            num_loss += 1
 
-            # inference_output = model.inference(images).cpu().data.numpy()
-            inference_output = [model.beam_search(images, dictionary, k=beam_size)]
-
+            if beam_size > 0:
+                inference_output = [model.beam_search(images, dictionary, k=beam_size)]
+            else:
+                inference_output = model.inference(images).cpu().data.numpy()
+            
             # inference_output = inference_output.cpu().data.numpy()
             sentence_output = []
 
@@ -108,11 +105,11 @@ def eval(data_loader, model, dictionary, loss_f, test_path, beam_size=5):
             progress_bar(batch_id, len(data_loader))
 
 
-    coco_stat = coco_metric(predictions, test_path)
+    # coco_stat = coco_metric(predictions, test_path)
 
     eval_loss = total_loss/len(data_loader)
 
-    return eval_loss, coco_stat, predictions
+    return eval_loss, predictions
 
 
 def main(args):
@@ -132,7 +129,7 @@ def main(args):
                                                                    shuffle=False,
                                                                    num_workers=0)
 
-    dict_path = 'model/saved/results/' + args.dataset +'/id_to_hyper.json'
+    dict_path = 'model/saved/'+args.dataset+'/id_to_hyper.json'
 
     with open(dict_path,'r') as f:
         hyper_dict = json.load(f)
@@ -151,11 +148,12 @@ def main(args):
     model = BaselineModel(args_dict).to(device)
 
     checkpoint = torch.load(args.checkpoint_path)
-    epoch = args.checkpoint_path.split('_')[2]
+    epoch = args.checkpoint_path.split('_')[3] + "_beam" + str(args.beam_size)
     model.load_state_dict(checkpoint['state_dict'])
     loss = nn.CrossEntropyLoss()
 
-    eval_loss, coco_stat, predictions = eval(data_loader, model, vocab, loss, test_path)
+    eval_loss, predictions = eval(data_loader, model, vocab, loss, args.beam_size)
+    coco_stat, result_captions = coco_metric(predictions, test_path)
 
     #saving rsults
     avg_val_loss = (eval_loss / len(data_loader)).cpu().numpy().tolist()
@@ -167,7 +165,8 @@ def main(args):
     ensure_dir(id_file_path)
     print("Saving testing result: {} ...".format(id_file_path))
 
-    load_save_result(epoch,'test', result_dict, id_file_path,filename= "/test_results.json")
+    load_save_result(epoch, 'test', result_dict, id_file_path, filename="/test_results.json")
+    load_save_result(epoch, 'test', result_captions, id_file_path, filename="/test_captions.json")
 
 
 if __name__ == '__main__':
@@ -179,6 +178,8 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', default="mscoco", type=str,
                         help='dataset used [mscoco | flickr8k | flickr30k | sbu | pascal]')
     parser.add_argument('-id', default="1", type=str,
-                        help='pretrained cnn model used')
+                        help='folder id used for evaluation')
+    parser.add_argument('--beam_size', default=5, type=int,
+                        help='beam size used for evaluation')
     main(parser.parse_args())
 

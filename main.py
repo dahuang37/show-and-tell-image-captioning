@@ -25,7 +25,7 @@ parser.add_argument('--resume', default='', type=str,
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--verbosity', default=2, type=int,
                     help='verbosity, 0: quiet, 1: per epoch, 2: complete (default: 2)')
-parser.add_argument('--save-dir', default='model/saved/results', type=str,
+parser.add_argument('--save-dir', default='model/saved', type=str,
                     help='directory of saved model (default: model/saved)')
 parser.add_argument('--save-freq', default=1, type=int,
                     help='training checkpoint frequency (default: 1)')
@@ -39,7 +39,7 @@ parser.add_argument('--hidden_size', default=512, type=int,
 parser.add_argument('--cnn_model', default="resnet152", type=str,
                     help='pretrained cnn model used')
 parser.add_argument('--rnn_model', default="LSTM", type=str,
-                    help='used[ LSTM | GRU')
+                    help='rnn model sued [ LSTM | GRU')
 parser.add_argument('--num_layers', default=3, type=int,
                     help='number of layers for lstm')
 parser.add_argument('--dropout', default=0.3, type=float,
@@ -51,14 +51,12 @@ parser.add_argument('--data_dir', default=1, type=float,
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 def main(args):
 
     hyper_id = load_save_hyper(args)
     print("testing hyper id: ",hyper_id)
     for key, items in vars(args).items():
         print("Current ",key ,": ",items)
-
 
     # transform
     train_transform = transforms.Compose([

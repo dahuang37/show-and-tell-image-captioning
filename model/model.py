@@ -23,7 +23,7 @@ class BaselineModel(BaseModel):
         self.encoder_linear = nn.Linear(resnet.fc.in_features, dictionary['embed_size'])
         self.bn = nn.BatchNorm1d(dictionary['embed_size'])
 
-        self.embedding = nn.Embedding(dictionary['vocab_size'],dictionary['embed_size'])
+        self.embedding = nn.Embedding(dictionary['vocab_size'], dictionary['embed_size'])
         self.rnn = getattr(nn, dictionary['rnn_model'])(dictionary['embed_size'], dictionary['hidden_size'], dictionary['num_layers'], batch_first=True)
         self.dropout = nn.Dropout(dictionary['dropout'])
         self.decoder_linear = nn.Linear(dictionary['hidden_size'], dictionary['vocab_size'])
@@ -53,12 +53,14 @@ class BaselineModel(BaseModel):
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
         
         hiddens, _ = self.rnn(packed)
-        outputs = self.dropout(hiddens[0])
-        outputs = self.decoder_linear(outputs)
+
+        # outputs = self.dropout(hiddens[0])
+        outputs = self.decoder_linear(hiddens[0])
+
 
         return outputs
 
-    def inference(self, images, states=None):
+    def inference(self, images, states=None, max_length=25):
         # get encoding from cnn
         with torch.no_grad():
             features = self.resnet(images)
@@ -70,7 +72,7 @@ class BaselineModel(BaseModel):
         inference_output = None
         inference_output = []
         rnn_input = features.unsqueeze(1)
-        for i in range(20):
+        for i in range(max_length):
             hiddens, states = self.rnn(rnn_input, states)
             rnn_outputs = self.decoder_linear(hiddens.squeeze(1))
             prediction = rnn_outputs.max(1)[1]
