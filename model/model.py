@@ -57,8 +57,8 @@ class BaselineModel(BaseModel):
         
         hiddens, _ = self.rnn(packed)
 
-        # outputs = self.dropout(hiddens[0])
-        outputs = self.decoder_linear(hiddens[0])
+        outputs = self.dropout(hiddens[0])
+        outputs = self.decoder_linear(outputs)
 
 
         return outputs

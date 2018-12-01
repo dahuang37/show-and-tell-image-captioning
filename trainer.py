@@ -61,6 +61,7 @@ class Trainer(BaseTrainer):
                     state = optimizer.state[p]
                         if(state['step']>=1024):
                             state['step'] = 1000
+                            
             self.optimizer.step()
             
             total_loss += loss.item()
