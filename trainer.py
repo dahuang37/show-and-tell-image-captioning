@@ -55,6 +55,12 @@ class Trainer(BaseTrainer):
                 
             loss = self.loss(outputs, targets)
             loss.backward()
+
+            for group in optimizer.param_groups:
+                for p in group['params']:
+                    state = optimizer.state[p]
+                        if(state['step']>=1024):
+                            state['step'] = 1000
             self.optimizer.step()
             
             total_loss += loss.item()

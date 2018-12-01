@@ -41,7 +41,7 @@ parser.add_argument('--cnn_model', default="resnet152", type=str,
 parser.add_argument('--rnn_model', default="LSTM", type=str,
                     help='rnn model sued [ LSTM | GRU')
 parser.add_argument('--num_layers', default=3, type=int,
-                    help='number of layers for lstm')
+                    help='number of layers for lstm/gru')
 parser.add_argument('--dropout', default=0.3, type=float,
                     help='dropout rate after each time step')
 parser.add_argument('--eval_freq', default=1, type=float,
