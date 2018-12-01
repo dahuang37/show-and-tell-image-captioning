@@ -52,7 +52,7 @@ class Trainer(BaseTrainer):
             
             self.optimizer.zero_grad()
             outputs = model(images, captions, lengths)
-            
+                
             loss = self.loss(outputs, targets)
             loss.backward()
             self.optimizer.step()
@@ -85,7 +85,8 @@ class Trainer(BaseTrainer):
         """
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = self.model
-        loss = nn.CrossEntropyLoss()
+        loss = self.loss
+        
         test_path = ''
         if self.dataset == "flickr30k":
             test_path = 'data/flickr30k/captions_flickr30k_val.json'
@@ -94,8 +95,8 @@ class Trainer(BaseTrainer):
         elif self.dataset == "mscoco":
             test_path =  'data/coco/annotations/captions_val2014_reserved.json'
         
-        eval_loss, predictions = eval(self.valid_data_loader, model, self.vocab, loss, test_path, beam_size=0)
-        coco_stat, _ = coco_metrics(predictions, test_path)
+        eval_loss, predictions = eval(self.valid_data_loader, model, self.vocab, loss, beam_size=0)
+        coco_stat, _ = coco_metric(predictions, test_path)
         avg_val_loss = (eval_loss / len(self.valid_data_loader)).cpu().numpy().tolist()
 
         result_dict = {'coco_stat_{}'.format(epoch): coco_stat,'loss': avg_val_loss}

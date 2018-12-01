@@ -31,6 +31,9 @@ class BaselineModel(BaseModel):
         self.init_weights()
 
     def init_weights(self):
+        """
+        randomly initilize weights for linear layers
+        """
         init_value = 0.1
         self.embedding.weight.data.uniform_(-init_value, init_value)
         self.encoder_linear.weight.data.uniform_(-init_value, init_value)
@@ -46,7 +49,7 @@ class BaselineModel(BaseModel):
         features = self.bn(self.encoder_linear(features))
 
         ### DECODER
-        embeddings = self.embedding(captions)
+        embeddings = self.embedding(captions) # (batch_size, )
         # concat features and embeddings
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         
