@@ -41,6 +41,7 @@ class Trainer(BaseTrainer):
         """
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = self.model
+        optimizer = self.optimizer
         model.train()
 
         start_time = time.time()
@@ -59,9 +60,8 @@ class Trainer(BaseTrainer):
             for group in optimizer.param_groups:
                 for p in group['params']:
                     state = optimizer.state[p]
-                        if(state['step']>=1024):
-                            state['step'] = 1000
-                            
+                    if('step' in state and state['step']>=1024):
+                        state['step'] = 1000
             self.optimizer.step()
             
             total_loss += loss.item()
