@@ -31,7 +31,7 @@ class BaseTrainer:
         ensure_dir(save_dir)
         if resume:
             self._resume_checkpoint(resume)
-        self.early_stop = Early_stopping(patience=4)
+        self.early_stop = Early_stopping(patience=2)
 
 
 
