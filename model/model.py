@@ -102,12 +102,6 @@ class BaselineModel(BaseModel):
         # We'll treat the problem as having a batch size of k
         encoder_out = features.expand(k, embed_size)  # (k, encoder_dim)
 
-        # # Tensor to store top k previous words at each step; now they're just <start>
-        # k_prev_words = None #encoder_out  # (k, 1)
-        
-        # # Tensor to store top k sequences; now they're just <start>
-        # seqs = k_prev_words  # (k, 1)
-
         # Tensor to store top k sequences' scores; now they're just 0
         top_k_scores = torch.zeros(k, 1).to(device)  # (k, 1)
 
@@ -119,15 +113,22 @@ class BaselineModel(BaseModel):
         step = 1
         embeddings = encoder_out.unsqueeze(1)
         h, c = None, None
+        
         # s is a number less than or equal to k, because sequences are removed from this process once they hit <end>
         while True:
 
             # embeddings = decoder.embedding(k_prev_words).squeeze(1)  # (s, embed_dim)
             # hiddens is h_t, which is one in this case
             if step == 1:
-                hiddens, (h, c) = self.rnn(embeddings, states)  # (s, decoder_dim)
+                if type(self.rnn).__name__ == "LSTM":
+                    hiddens, (h, c) = self.rnn(embeddings, states)  # (s, decoder_dim)
+                else:
+                    hiddens, h = self.rnn(embeddings, states)  # (s, decoder_dim)
             else:
-                hiddens, (h, c) = self.rnn(embeddings, (h,c)) 
+                if type(self.rnn).__name__ == "LSTM":
+                    hiddens, (h, c) = self.rnn(embeddings, (h, c))  # (s, decoder_dim)
+                else:
+                    hiddens, h = self.rnn(embeddings, h)  # (s, decoder_dim)
             scores = self.decoder_linear(hiddens.squeeze(1))
             scores = F.log_softmax(scores, dim=1)
             # Add
@@ -166,7 +167,8 @@ class BaselineModel(BaseModel):
             # h
             h = h[:,prev_word_inds[incomplete_inds]]
             # c
-            c = c[:,prev_word_inds[incomplete_inds]]
+            if type(self.rnn).__name__ == "LSTM":
+                c = c[:,prev_word_inds[incomplete_inds]]
             top_k_scores = top_k_scores[incomplete_inds].unsqueeze(1)
             k_prev_words = next_word_inds[incomplete_inds].unsqueeze(1)
             embeddings = self.embedding(k_prev_words)  # (s, embed_dim)
