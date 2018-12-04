@@ -175,9 +175,10 @@ class BaselineModel(BaseModel):
             if step > 50:
                 break
             step += 1
-
-        i = complete_seqs_scores.index(max(complete_seqs_scores))
-        seq = complete_seqs[i]
-
+        if len(complete_seqs_scores) > 0 :
+            i = complete_seqs_scores.index(max(complete_seqs_scores))
+            seq = complete_seqs[i]
+        else:
+            seq = []
         return seq
         
