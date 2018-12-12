@@ -102,6 +102,7 @@ def eval(data_loader, model, dictionary, loss_f, beam_size=5):
                     image_set.append(img_id[id])
                 pred = {'image_id': img_id[id], 'caption': sentence}
                 predictions.append(pred)
+            
             progress_bar(batch_id, len(data_loader))
 
 
@@ -121,7 +122,7 @@ def main(args):
                                      std=[0.229, 0.224, 0.225])
                     ])
 
-    vocab = dataloader.get_vocab(dataset=args.dataset)()
+    vocab = dataloader.get_vocab(dataset="mscoco")()
     data_loader = dataloader.get_data_loader(dataset=args.dataset)(mode="test",
                                                                    transform=test_transform,
                                                                    vocab=vocab,
@@ -129,7 +130,7 @@ def main(args):
                                                                    shuffle=False,
                                                                    num_workers=0)
 
-    dict_path = 'model/saved/'+args.dataset+'/id_to_hyper.json'
+    dict_path = './model/saved/'+"mscoco"+'/id_to_hyper.json'
 
     with open(dict_path,'r') as f:
         hyper_dict = json.load(f)
@@ -140,7 +141,9 @@ def main(args):
     elif args.dataset == 'flickr30k':
         test_path = 'data/flickr30k/captions_flickr30k_test.json'
     elif args.dataset == 'mscoco':
-        test_path = 'data/coco/annotations/captions_test2014_reserved.json'
+        test_path = 'vectordash_result/data/annotations/captions_test2014_reserved.json'
+    elif args.dataset == 'pascal':
+        test_path =  'data/pascal/captions_pascal_test.json'
 
     args_dict = hyper_dict[args.id]
 
@@ -157,7 +160,7 @@ def main(args):
     coco_stat, result_captions = coco_metric(predictions, test_path)
 
     #saving rsults
-    avg_val_loss = (eval_loss / len(data_loader)).cpu().numpy().tolist()
+    avg_val_loss = (eval_loss).cpu().numpy().tolist()
     result_dict = {'loss': avg_val_loss, 'coco_stat': coco_stat}
 
     id_filename = str(args.id) + '_/'

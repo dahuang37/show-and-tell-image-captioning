@@ -67,8 +67,8 @@ class Trainer(BaseTrainer):
             total_loss += loss.item()
 
             # logging info
-            #log_step = int(np.sqrt(self.batch_size))
-            #if self.verbosity >= 2 and batch_idx % log_step == 0:
+            # log_step = int(np.sqrt(self.batch_size))
+            # if self.verbosity >= 2 and batch_idx % log_step == 0:
             #    print('Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.6f}, time: {}'.format(
             #        epoch, batch_idx * len(images), len(self.data_loader) * len(images),
             #        100.0 * batch_idx / len(self.data_loader), loss.item(), format_time(time.time()-start_time)))

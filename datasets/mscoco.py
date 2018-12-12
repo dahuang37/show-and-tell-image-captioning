@@ -104,6 +104,7 @@ def generate_test_entries(valid_annFile, root="./data/coco/annotations",
 
 	test_dict = {'images':[], 'annotations':[], 'info': test_file["info"], 'licenses': test_file["licenses"]}
 	valid_dict = {'images':[], 'annotations':[], 'info': test_file["info"], 'licenses': test_file["licenses"]}
+	np.random.seed(0)
 	test_ids_idx = np.random.choice(num_of_imgs, 4000, replace=False)
 	test_ids = np.array(list(coco.imgs.keys()))[test_ids_idx]
 	
